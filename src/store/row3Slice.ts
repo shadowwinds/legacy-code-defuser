@@ -68,6 +68,7 @@ export const createRow3Slice: StateCreator<RootState, [], [], Row3State> = (set,
     const entry = PASSCODES[s.passcodeIndex]
     if (normalize(text) !== normalize(entry.passcode)) {
       // 填错：Row3 扣到剩 5s（clamp ≥ 0，不会触爆）+ 冻结倒计时 + 填错锁
+      window.dispatchEvent(new CustomEvent('lcd:penalty', { detail: { row: ROW3, sec: 5, source: 'row3:wrong' } }))
       const sec = Math.max(0, s.modules[ROW3 - 1].remaining - 5)
       s.penalizeRow(ROW3, sec)
       s.freezeRow(ROW3, 9999999)

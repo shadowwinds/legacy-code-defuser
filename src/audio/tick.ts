@@ -115,23 +115,63 @@ function playExplosion(c: AudioContext): void {
   osc.stop(t + 0.6)
 }
 
-/** 通关：上扬双音（C5 → G5） */
+/** 通关：XP Chord 式上扬四音琶音（#25，复刻开机曲「神似」不追采样） */
 function playWin(c: AudioContext): void {
   const t = c.currentTime
-  const notes = [523.25, 783.99]
-  notes.forEach((f, i) => {
-    const start = t + i * 0.15
+  // B♭4 → E♭5 → G5 → B♭5，末音延音带五度和声
+  const notes: Array<{ f: number; at: number; dur: number; gain: number }> = [
+    { f: 466.16, at: 0, dur: 0.5, gain: 0.3 },
+    { f: 622.25, at: 0.18, dur: 0.5, gain: 0.3 },
+    { f: 783.99, at: 0.36, dur: 0.5, gain: 0.3 },
+    { f: 932.33, at: 0.54, dur: 1.2, gain: 0.32 },
+    { f: 1174.66, at: 0.54, dur: 1.2, gain: 0.18 },
+  ]
+  for (const { f, at, dur, gain } of notes) {
     const osc = c.createOscillator()
     osc.type = 'sine'
     osc.frequency.value = f
     const g = c.createGain()
+    const start = t + at
     g.gain.setValueAtTime(0.001, start)
-    g.gain.exponentialRampToValueAtTime(0.35, start + 0.02)
-    g.gain.exponentialRampToValueAtTime(0.001, start + 0.3)
+    g.gain.exponentialRampToValueAtTime(gain, start + 0.03)
+    g.gain.exponentialRampToValueAtTime(0.001, start + dur)
     osc.connect(g).connect(c.destination)
     osc.start(start)
-    osc.stop(start + 0.35)
+    osc.stop(start + dur + 0.05)
+  }
+}
+
+/** 错误：Windows 式低双音（G4→D#4 方波短促），失败反馈（#25） */
+function playError(c: AudioContext): void {
+  const t = c.currentTime
+  const notes = [392.0, 311.13]
+  notes.forEach((f, i) => {
+    const start = t + i * 0.12
+    const osc = c.createOscillator()
+    osc.type = 'square'
+    osc.frequency.value = f
+    const g = c.createGain()
+    g.gain.setValueAtTime(0.001, start)
+    g.gain.exponentialRampToValueAtTime(0.18, start + 0.01)
+    g.gain.exponentialRampToValueAtTime(0.001, start + 0.18)
+    osc.connect(g).connect(c.destination)
+    osc.start(start)
+    osc.stop(start + 0.2)
   })
+}
+
+// ---- 惩罚 Error 音：penaltySlice 统一入口广播事件，此处订阅（避免 audio↔store 循环依赖） ----
+let lastErrorAt = 0
+
+function onPenaltyEvent(): void {
+  if (muted) return
+  const c = getAudioContext()
+  if (!c) return
+  // Edge A 一轮扣两行 = 连续两次事件，100ms 内只播一声
+  const now = Date.now()
+  if (now - lastErrorAt < 100) return
+  lastErrorAt = now
+  playError(c)
 }
 
 // ---- setTimeout 链驱动（嘀嗒对时序精度不敏感） ----
@@ -198,6 +238,9 @@ export function initTickEngine(): void {
       else if (state.status === 'won') playWin(c)
     }
   })
+
+  // 惩罚 Error 音：统一入口 penaltySlice 广播 window 事件（#25）
+  window.addEventListener('lcd:penalty', onPenaltyEvent)
 
   // DEV 调试句柄：browser_evaluate 用
   if (import.meta.env.DEV) {

@@ -46,6 +46,8 @@ export const createPenaltySlice: StateCreator<RootState, [], [], PenaltyState> =
     const s = get()
     if (s.status !== 'playing') return
     const { row, all, sec, lockSec } = opts
+    // 音效钩子（#25）：统一入口广播，audio 层订阅播 Error（解耦避免循环依赖）
+    window.dispatchEvent(new CustomEvent('lcd:penalty', { detail: opts }))
     if (all) {
       s.penalizeAll(sec)
       return

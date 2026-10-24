@@ -35,6 +35,7 @@ export const createRow1Slice: StateCreator<RootState, [], [], Row1State> = (set,
 
     if (option === 'merge-center') {
       set({ trapCommentShown: true })
+      window.dispatchEvent(new CustomEvent('lcd:penalty', { detail: { all: true, sec: ROW1_TRAP_PENALTY_SEC, source: 'row1:trap' } }))
       s.penalizeAll(ROW1_TRAP_PENALTY_SEC)
       return 'trap'
     }
@@ -45,6 +46,7 @@ export const createRow1Slice: StateCreator<RootState, [], [], Row1State> = (set,
       s.defuseModule(1)
       return 'correct'
     }
+    window.dispatchEvent(new CustomEvent('lcd:penalty', { detail: { row: 1, sec: ROW1_WRONG_PENALTY_SEC, source: 'row1:wrong' } }))
     s.penalizeRow(1, ROW1_WRONG_PENALTY_SEC)
     return 'wrong'
   },
