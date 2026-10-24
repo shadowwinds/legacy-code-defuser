@@ -38,6 +38,11 @@ export interface Row4State {
   gSum: number
   /** 是否已账平（凑够 1024 或偷懒公式，均已触发 defuseModule(4)） */
   gBalanced: boolean
+  /**
+   * 玩家是否动过 G 列。Edge A 失衡起点语义（#22）：初始 #DIV/0! 是"祖传乱账"
+   * 而非玩家过失，未动过手不连坐；首次 setGCell 后失衡判定才生效。
+   */
+  touched: boolean
   /** 偷懒彩蛋批注触发序号（0 = 未触发过；组件订阅序号弹泡） */
   lazyEggSeq: number
   /** 彩蛋批注所在格下标（定位批注泡） */
@@ -58,6 +63,7 @@ export const createRow4Slice: StateCreator<RootState, [], [], Row4State> = (set,
   gHasError: true,
   gSum: 0,
   gBalanced: false,
+  touched: false,
   lazyEggSeq: 0,
   lazyEggCell: null,
 
@@ -69,14 +75,17 @@ export const createRow4Slice: StateCreator<RootState, [], [], Row4State> = (set,
     const trimmed = raw.trim()
     const cells = [...s.gCells]
 
-    // 偷懒公式彩蛋：直接过关 + 弹批注「外包本人吧？」（GDD 02 §2.3 预期彩蛋）
+    // 偷懒公式彩蛋：直接过关 + 弹批注「外包本人吧？」（GDD 02 §2.3 预期彩蛋）。
+    // 糊弄语义：错误格一并糊掉，过关后 G 列无 #DIV/0!/#VALUE! 残留（#24）
     if (trimmed.toLowerCase() === LAZY_FORMULA.toLowerCase()) {
       cells[idx] = 'LAZY'
+      const cleaned = cells.map((c) => (c === '#DIV/0!' || c === '#VALUE!' ? null : c))
       set({
-        gCells: cells,
+        gCells: cleaned,
         gHasError: false,
         gSum: RECON_TARGET,
         gBalanced: true,
+        touched: true,
         lazyEggSeq: s.lazyEggSeq + 1,
         lazyEggCell: idx,
       })
@@ -96,10 +105,10 @@ export const createRow4Slice: StateCreator<RootState, [], [], Row4State> = (set,
 
     if (balanced) {
       // GDD 02 §2.3：凑到 1024 = 过关（defuseModule 内部倒计时回满 + 标记已拆）
-      set({ gCells: cells, gHasError: false, gSum: RECON_TARGET, gBalanced: true })
+      set({ gCells: cells, gHasError: false, gSum: RECON_TARGET, gBalanced: true, touched: true })
       s.defuseModule(4)
     } else {
-      set({ gCells: cells, gHasError: hasError, gSum: sum })
+      set({ gCells: cells, gHasError: hasError, gSum: sum, touched: true })
     }
   },
 })

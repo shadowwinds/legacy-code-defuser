@@ -48,12 +48,14 @@ export function Row4GOverlay() {
   const [editing, setEditing] = useState<EditingState | null>(null)
   const [eggVisible, setEggVisible] = useState(false)
 
-  // 失衡状态同步：未账平且未拆除 = 失衡（开局 #DIV/0! 就是失衡起点）；
+  // 失衡状态同步（#22 起点语义）：玩家动过 G 列后仍未账平且未拆除 = 失衡；
+  // 初始 #DIV/0! 是祖传乱账，未动手不连坐（否则开局 30–45s Row2 必炸，首局不可通关）。
   // 账平或 Row4 拆除后解除（连坐停止、箭头消失）
   const row4Defused = useGameStore((s) => s.modules[3].defused)
+  const touched = useGameStore((s) => s.touched)
   useEffect(() => {
-    setImbalance(!(gBalanced || row4Defused))
-  }, [gBalanced, row4Defused, setImbalance])
+    setImbalance(touched && !(gBalanced || row4Defused))
+  }, [touched, gBalanced, row4Defused, setImbalance])
 
   // Edge A 周期连坐：失衡每满 10s → Row2/Row3 各 -15s（一次性 setTimeout 链，
   // 由 imbalanceSince 变化重排；非引擎 tick，不违反「组件禁止自开 interval」）

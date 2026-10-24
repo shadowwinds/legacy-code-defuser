@@ -63,6 +63,10 @@ const explode = (row: number) => `${MODULE_NAMES[row]} 当场爆炸。`
 const FUSE_REASON = '17:00 了，引信烧完，全表爆炸。'
 const WIN_REASON = '17:00 准点跑路，下班！'
 
+/** 单次 tick 的 delta 上限（秒）：页面失活被浏览器节流后，回前台累积 delta 一次性
+ * 结算会瞬扣数十秒直接引爆（#23）。clamp 后后台时间最多按真实秒走，前台 100ms tick 不受影响。 */
+const MAX_TICK_DELTA_SEC = 1
+
 export const createEngineSlice: StateCreator<RootState, [], [], EngineState> = (set, get) => ({
   fuseRemaining: FUSE_INITIAL_SEC,
   modules: createInitialModules(MODULE_BASE_SEC),
@@ -82,7 +86,7 @@ export const createEngineSlice: StateCreator<RootState, [], [], EngineState> = (
 
   tick: () => {
     const now = Date.now()
-    const deltaSec = (now - lastTickAt) / 1000
+    const deltaSec = Math.min(MAX_TICK_DELTA_SEC, (now - lastTickAt) / 1000)
     lastTickAt = now
 
     const s = get()
@@ -123,6 +127,8 @@ export const createEngineSlice: StateCreator<RootState, [], [], EngineState> = (
     const idx = row - 1
     const target = s.modules[idx]
     if (target.defused) return
+    // 冻结 = 真暂停保护（与 tick 跳过冻结行一致）：填错锁等保护性冻结不被惩罚击穿（#23）
+    if ((s.frozenRowsUntil[row] ?? 0) > Date.now()) return
 
     const remaining = Math.max(0, target.remaining - sec)
     const modules = s.modules.map((m, i) => (i === idx ? { ...m, remaining } : m))
@@ -137,9 +143,12 @@ export const createEngineSlice: StateCreator<RootState, [], [], EngineState> = (
     const s = get()
     if (s.status !== 'playing') return
 
+    const now = Date.now()
     let explodedRow = 0
     const modules = s.modules.map((m) => {
       if (m.defused) return m
+      // 冻结行跳过：全场惩罚不打保护性冻结（填错锁语义，#23）
+      if ((s.frozenRowsUntil[m.row] ?? 0) > now) return m
       const remaining = Math.max(0, m.remaining - sec)
       if (remaining <= 0 && explodedRow === 0) explodedRow = m.row
       return { ...m, remaining }

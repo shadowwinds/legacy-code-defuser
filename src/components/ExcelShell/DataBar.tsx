@@ -5,6 +5,11 @@ export interface DataBarProps {
   initialSec: number
 }
 
+/** 剩余文本：≥10s 整数秒（列宽内不裁切），<10s 一位小数（URGENT 压迫感），#24 */
+function remainingText(sec: number): string {
+  return sec >= 10 ? `${Math.ceil(sec)}s` : `${sec.toFixed(1)}s`
+}
+
 /**
  * E 列数据条（Excel 条件格式三色数据条）。
  * 配色档位（GDD 02 §2.1）：>60s 绿 / 20–60s 黄 / <20s 红；
@@ -18,7 +23,7 @@ export function DataBar({ remainingSec, initialSec }: DataBarProps) {
   return (
     <span className="data-bar" data-tier={tier} data-urgent={urgent || undefined}>
       <span className="data-bar-fill" style={{ width: `${pct}%` }} />
-      <span className="data-bar-text">{tier === 'err' ? '#URGENT!' : `${remainingSec}s`}</span>
+      <span className="data-bar-text">{tier === 'err' ? '#URGENT!' : remainingText(remainingSec)}</span>
     </span>
   )
 }
