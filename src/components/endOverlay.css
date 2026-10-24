@@ -1,4 +1,4 @@
-/* ===== 终局全屏遮罩（issue #4 简版） ===== */
+/* ===== 终局 Win98 弹窗（issue #26） ===== */
 
 .end-overlay {
   position: fixed;
@@ -8,7 +8,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 40px;
+  gap: 36px;
   background: rgba(20, 20, 20, 0.82);
   animation: end-overlay-in 0.25s ease-out;
 }
@@ -24,7 +24,7 @@
 
 .end-overlay .end-text {
   max-width: 80vw;
-  font-size: 42px;
+  font-size: 40px;
   font-weight: 700;
   text-align: center;
   color: #fff;
@@ -33,22 +33,133 @@
 
 .end-overlay.exploded .end-text {
   color: var(--xlsx-err-bg);
+  text-shadow: 0 0 24px rgba(224, 43, 43, 0.55);
 }
 
 .end-overlay.won .end-text {
   color: var(--xlsx-ok-bg);
 }
 
-.end-overlay .end-restart {
-  padding: 10px 36px;
-  font-size: 16px;
-  color: #333;
-  background: #fff;
-  border: 1px solid #fff;
-  cursor: pointer;
+/* ---- Win98 对话框拟物：灰底 3D 浮雕 + 深蓝标题栏 ---- */
+.win98-dialog {
+  width: min(460px, 86vw);
+  background: #c0c0c0;
+  border: 2px solid;
+  border-color: #fff #808080 #808080 #fff;
+  box-shadow:
+    inset -1px -1px 0 #0a0a0a,
+    inset 1px 1px 0 #dfdfdf,
+    4px 4px 0 rgba(0, 0, 0, 0.45);
+  font-family: 'Microsoft YaHei', 'SimSun', sans-serif;
+  animation: win98-pop 0.18s ease-out;
 }
 
-.end-overlay .end-restart:hover {
+@keyframes win98-pop {
+  from {
+    transform: scale(0.92);
+    opacity: 0.4;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.win98-titlebar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 6px;
+  background: linear-gradient(90deg, #000080, #1084d0);
   color: #fff;
-  background: transparent;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.win98-title-icon {
+  font-size: 12px;
+}
+
+.win98-title {
+  flex: 1;
+  letter-spacing: 0.5px;
+}
+
+.win98-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 16px;
+  background: #c0c0c0;
+  color: #000;
+  font-size: 10px;
+  font-weight: 400;
+  border: 1px solid;
+  border-color: #fff #808080 #808080 #fff;
+}
+
+.win98-body {
+  padding: 18px 16px 14px;
+}
+
+.win98-msg {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  font-size: 14px;
+  line-height: 1.55;
+  color: #000;
+}
+
+.win98-msg-icon {
+  font-size: 26px;
+  line-height: 1;
+}
+
+.win98-save-quip {
+  display: block;
+  margin-top: 6px;
+  color: #a00;
+  font-size: 12px;
+}
+
+.win98-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.win98-btn {
+  min-width: 96px;
+  padding: 5px 14px;
+  font-size: 13px;
+  color: #000;
+  background: #c0c0c0;
+  border: 2px solid;
+  border-color: #fff #808080 #808080 #fff;
+  box-shadow: inset -1px -1px 0 #0a0a0a, inset 1px 1px 0 #dfdfdf;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.win98-btn:active {
+  border-color: #808080 #fff #fff #808080;
+  box-shadow: inset 1px 1px 0 #0a0a0a;
+}
+
+.win98-btn.primary {
+  font-weight: 700;
+  outline: 1px dotted #000;
+  outline-offset: -4px;
+}
+
+/* 爆炸结局：标题栏转危机红，正文错误纹 */
+.win98-dialog.exploded .win98-titlebar {
+  background: linear-gradient(90deg, #7a0000, #c0392b);
+}
+
+.win98-dialog.won .win98-titlebar {
+  background: linear-gradient(90deg, #0a5c0a, #2e8b57);
 }
