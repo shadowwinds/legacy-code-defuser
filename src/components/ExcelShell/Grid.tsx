@@ -277,11 +277,13 @@ export function Grid() {
         <TrackerOverlay />
         <div
           className="d-col-resizer"
+          role="separator"
+          aria-orientation="horizontal"
+          aria-label="D 列宽拖拽"
           style={{
             left: `calc(var(--row-header-w) + var(--col-w) * 3 + ${dColWidth}px - 3px)`,
           }}
           onPointerDown={onResizerPointerDown}
-          aria-label="D 列宽拖拽"
         />
       </div>
     </div>
