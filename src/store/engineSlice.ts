@@ -158,7 +158,10 @@ export const createEngineSlice: StateCreator<RootState, [], [], EngineState> = (
     const idx = row - 1
     if (s.modules[idx].defused) return
 
-    const modules = s.modules.map((m, i) => (i === idx ? { ...m, defused: true } : m))
+    // GDD §2.3：拆除 = 倒计时回满 + 标记已拆
+    const modules = s.modules.map((m, i) =>
+      i === idx ? { ...m, defused: true, remaining: m.initial } : m,
+    )
     if (modules.every((m) => m.defused)) {
       set({ modules, status: 'won', endReason: WIN_REASON })
     } else {
