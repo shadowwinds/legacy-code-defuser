@@ -1,0 +1,65 @@
+/* ===== Row2 防欠薪自爆网关（issue #8）：死锁紫底 + fx 编辑态 + IFERROR 彩蛋 ===== */
+
+/* fx 栏作为彩蛋批注浮层的定位锚（static → relative，盒子布局不变） */
+.formula-bar {
+  position: relative;
+}
+
+/* 死锁呼吸闪烁：慢速 opacity 微变（2~3s ease-in-out 循环） */
+@keyframes row2-breathe {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.72;
+  }
+}
+
+/* Row2 死锁中：紫底白字（--xlsx-deadlock = #7030A0）；.grid 前缀压过 .rh.active/.cell 默认样式 */
+.grid .rh.row2-deadlocked,
+.grid .cell.row2-deadlocked {
+  background: var(--xlsx-deadlock);
+  color: #fff;
+  animation: row2-breathe 2.4s ease-in-out infinite;
+}
+
+/* 死锁中禁点单元格（非 G/E 列）：光标置灰；点击行为已在 Grid 层移除 */
+.grid .cell.row2-blocked {
+  cursor: not-allowed;
+}
+
+/* Row2 死锁中 fx 栏可点击进入编辑 */
+.fx-input.fx-editable {
+  cursor: text;
+}
+
+/* fx 编辑态输入框：对齐 .fx-input 既有字号/内边距 */
+input.fx-input.fx-editing {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: #fff;
+  padding: 0 8px;
+  font-family: inherit;
+  font-size: 12px;
+  color: #111;
+  user-select: text;
+}
+
+/* IFERROR 彩蛋批注浮层：米黄批注框，4s 自动消失 */
+.row2-egg-pop {
+  position: absolute;
+  top: calc(100% + 3px);
+  left: 148px;
+  padding: 6px 10px;
+  background: var(--xlsx-comment);
+  border: 1px solid #a8a8a8;
+  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  color: #1a1a1a;
+  font-size: 12px;
+  line-height: 1.7;
+  white-space: nowrap;
+  z-index: 20;
+}
