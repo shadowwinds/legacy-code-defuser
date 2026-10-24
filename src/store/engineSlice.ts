@@ -40,6 +40,12 @@ export interface EngineState {
   endReason: string | null
   /** 本局生效的口令附录行下标（0–4，Row3 后续票接 UI） */
   passcodeIndex: number
+  /** 行号 → 冻结截止 epoch ms；冻结期间该行倒计时暂停（fill: 冻结窗格/填错锁） */
+  frozenRowsUntil: Record<number, number>
+  /** 冻结指定行 ms 毫秒（重复调用取最晚截止） */
+  freezeRow: (row: number, ms: number) => void
+  /** 该行当前是否被冻结 */
+  isRowFrozen: (row: number) => boolean
   /** 引擎 100ms tick（由 useGameEngine 统一驱动，组件禁止自开 interval） */
   tick: () => void
   /** 指定行扣时（已拆模块免疫；clamp 0，归零即爆炸） */
@@ -63,6 +69,16 @@ export const createEngineSlice: StateCreator<RootState, [], [], EngineState> = (
   status: 'playing',
   endReason: null,
   passcodeIndex: pickPasscodeIndex(),
+  frozenRowsUntil: {},
+
+  freezeRow: (row, ms) => {
+    if (get().status !== 'playing') return
+    const until = Date.now() + ms
+    const cur = get().frozenRowsUntil[row] ?? 0
+    set({ frozenRowsUntil: { ...get().frozenRowsUntil, [row]: Math.max(cur, until) } })
+  },
+
+  isRowFrozen: (row) => (get().frozenRowsUntil[row] ?? 0) > Date.now(),
 
   tick: () => {
     const now = Date.now()
@@ -71,12 +87,22 @@ export const createEngineSlice: StateCreator<RootState, [], [], EngineState> = (
 
     const s = get()
     s.pruneLocks() // 锁定到期自动解锁（penaltySlice）
+    // 清理过期冻结
+    const frozen = { ...s.frozenRowsUntil }
+    let frozenPruned = false
+    for (const k of Object.keys(frozen)) {
+      if (frozen[Number(k)] <= now) {
+        delete frozen[Number(k)]
+        frozenPruned = true
+      }
+    }
+    if (frozenPruned) set({ frozenRowsUntil: frozen })
     if (s.status !== 'playing' || deltaSec <= 0) return
 
     const fuseRemaining = Math.max(0, s.fuseRemaining - deltaSec)
     let explodedRow = 0
     const modules = s.modules.map((m) => {
-      if (m.defused) return m
+      if (m.defused || (frozen[m.row] ?? 0) > now) return m
       const remaining = Math.max(0, m.remaining - deltaSec)
       if (remaining <= 0 && explodedRow === 0) explodedRow = m.row
       return { ...m, remaining }
