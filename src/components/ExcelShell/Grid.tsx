@@ -5,6 +5,7 @@ import { COL_COUNT, colLetter } from '../../lib/grid'
 import { useGameStore } from '../../store'
 import { Comment } from './Comment'
 import { DataBar } from './DataBar'
+import { TrackerOverlay } from './TrackerOverlay'
 
 /** 8 行网格：行号 1–8 + 列标 A–H，E 列为数据条列；点击单元格/行号选中 */
 export function Grid() {
@@ -13,6 +14,7 @@ export function Grid() {
   const selectCell = useGameStore((s) => s.selectCell)
   const selectRow = useGameStore((s) => s.selectRow)
   const modules = useGameStore((s) => s.modules)
+  const locks = useGameStore((s) => s.locks)
 
   const rowSelected = selectedCol === null
   // Row1 的 A 列是合并单元格：选中 A1 时选中框横跨合并宽度
@@ -21,6 +23,9 @@ export function Grid() {
 
   const isColActive = (col: number) =>
     !rowSelected && selectedCol !== null && col >= selectedCol && col < selectedCol + mergedSpan
+
+  // 行锁定（penaltySlice）：锁定期间该行灰化
+  const isLocked = (row: number) => (locks[row] ?? 0) > Date.now()
 
   // 选中框覆盖层：按网格结构尺寸绝对定位（随滚动容器一起滚动）
   const frameStyle: CSSProperties = rowSelected
@@ -49,10 +54,11 @@ export function Grid() {
 
         {GRID_ROWS.map((r) => {
           const isSelRow = selectedRow === r.row
+          const locked = isLocked(r.row)
           const cells: JSX.Element[] = []
           let col = 1
           while (col <= COL_COUNT) {
-            const cls = `cell${r.kind === 'dim' ? ' dim' : ''}`
+            const cls = `cell${r.kind === 'dim' ? ' dim' : ''}${locked ? ' locked' : ''}`
             if (col === 5) {
               // E 列：模块行接引擎倒计时数据条；非模块行不渲染
               const mod = r.kind === 'module' ? modules[r.row - 1] : undefined
@@ -90,7 +96,7 @@ export function Grid() {
           return (
             <Fragment key={r.row}>
               <div
-                className={`rh${r.kind === 'dim' ? ' dim' : ''}${isSelRow ? ' active' : ''}`}
+                className={`rh${r.kind === 'dim' ? ' dim' : ''}${isSelRow ? ' active' : ''}${locked ? ' locked' : ''}`}
                 onClick={() => selectRow(r.row)}
               >
                 {r.row}
@@ -101,6 +107,7 @@ export function Grid() {
         })}
 
         <div className="selection-frame" style={frameStyle} />
+        <TrackerOverlay />
       </div>
     </div>
   )
