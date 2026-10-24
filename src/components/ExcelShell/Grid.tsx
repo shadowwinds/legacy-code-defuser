@@ -9,6 +9,7 @@ import { DataBar } from './DataBar'
 import { Row4GOverlay } from '../modules/Row4GOverlay'
 import { TrackerOverlay } from './TrackerOverlay'
 import { Row5Module } from '../modules/Row5Module'
+import { Row1Module } from '../modules/Row1Module'
 
 /** D 列宽拖拽范围（px） */
 const D_COL_MIN_PX = 48
@@ -68,6 +69,8 @@ export function Grid() {
   const formatBrush = useGameStore((s) => s.formatBrush)
   const greenWashRow = useGameStore((s) => s.greenWashRow)
   const frozenRowsUntil = useGameStore((s) => s.frozenRowsUntil)
+  // Row1（issue #9）：A1 #结构损坏! 故障角标
+  const structureBroken = useGameStore((s) => s.structureBroken)
 
   // Row8 禁操行：点击全场 -30s，1s 防抖 + 短暂红闪
   const [row8Flash, setRow8Flash] = useState(false)
@@ -226,6 +229,7 @@ export function Grid() {
                     row2Blocked ? undefined : isRow8 ? handleRow8Click : () => selectCell(r.row, 1)
                   }
                 >
+                  <span className="a1-broken">{r.row === 1 && structureBroken ? '#结构损坏!' : ''}</span>
                   <span>{r.text}</span>
                   {r.comment ? <Comment text={r.comment} /> : null}
                 </div>,
@@ -248,6 +252,7 @@ export function Grid() {
                 <span>{col === 1 ? r.text : ''}</span>
                 {col === 1 && r.comment ? <Comment text={r.comment} /> : null}
                 {r.row === 5 && col === 6 ? <Row5Module /> : null}
+                {r.row === 1 && col === 6 ? <Row1Module /> : null}
               </div>,
             )
             col += 1

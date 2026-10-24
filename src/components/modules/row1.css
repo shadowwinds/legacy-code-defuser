@@ -1,0 +1,44 @@
+/* ===== Row1 跨部门汇总合并单元格（issue #9）：#结构损坏! + 条件下拉 + 居中陷阱批注 ===== */
+
+/* F1 下拉容器：批注泡定位锚（static → relative，盒子布局不变） */
+.row1-wrap {
+  position: relative;
+  width: 100%;
+}
+
+/* 结构损坏中 F1 的下拉：#结构损坏! 占位 + 三选项 */
+.row1-select {
+  width: 100%;
+  height: 16px;
+  font-size: 12px;
+  line-height: 1;
+  padding: 0 2px;
+  color: #c00000;
+  background: #fff;
+  border: 1px solid #c0504d;
+  border-radius: 2px;
+  cursor: pointer;
+}
+
+/* A1 合并格故障角标：#结构损坏! 红字前缀（structureBroken 时由 Grid 渲染） */
+.a1-broken {
+  color: #c00000;
+  font-weight: 700;
+  margin-right: 4px;
+}
+
+/* 合并后居中陷阱批注泡：米黄批注框，4s 自动消失（样式对齐 row2.css 的 .row2-egg-pop） */
+.row1-trap-pop {
+  position: absolute;
+  top: calc(100% + 3px);
+  left: 0;
+  padding: 6px 10px;
+  background: var(--xlsx-comment);
+  border: 1px solid #a8a8a8;
+  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  color: #1a1a1a;
+  font-size: 12px;
+  line-height: 1.7;
+  white-space: nowrap;
+  z-index: 20;
+}
