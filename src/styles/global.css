@@ -1,0 +1,45 @@
+:root {
+  /* ---- Excel 2016 色板（GDD 04 §4.1）---- */
+  --xlsx-green: #217346;      /* 顶栏主题绿 */
+  --xlsx-toolbar: #F3F2F1;    /* 工具栏/底色 */
+  --xlsx-selected: #107C41;   /* 选中边框 */
+  --xlsx-ok-bg: #C6EFCE;      /* 条件格式绿·底 */
+  --xlsx-ok-fg: #006100;      /* 条件格式绿·字 */
+  --xlsx-warn-bg: #FFEB9C;    /* 条件格式黄·底 */
+  --xlsx-warn-fg: #9C6500;    /* 条件格式黄·字 */
+  --xlsx-err-bg: #FFC7CE;     /* 条件格式红·底 */
+  --xlsx-err-fg: #9C0006;     /* 条件格式红·字 */
+  --xlsx-deadlock: #7030A0;   /* 死锁紫 */
+  --xlsx-comment: #FFFFE1;    /* 批注米黄 */
+  --xlsx-dim: #F2F2F2;        /* 装饰灰行·底 */
+  --xlsx-dim-fg: #808080;     /* 装饰灰行·字 */
+
+  /* ---- 网格结构尺寸 ---- */
+  --row-header-w: 42px;
+  --col-w: 96px;
+  --row-h: 24px;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  font-family: 'Segoe UI', 'Microsoft YaHei', 'PingFang SC', sans-serif;
+  font-size: 13px;
+  color: #333;
+  background: var(--xlsx-toolbar);
+  -webkit-font-smoothing: antialiased;
+}
+
+button {
+  font: inherit;
+}

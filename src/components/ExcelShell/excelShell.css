@@ -1,0 +1,298 @@
+/* ===== Excel 2016 外壳骨架样式（issue #2 静态版） ===== */
+
+.excel-shell {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-width: 720px;
+  background: #fff;
+  user-select: none;
+}
+
+/* ---- 标题栏 ---- */
+.titlebar {
+  flex: none;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 10px;
+  background: var(--xlsx-green);
+  color: #fff;
+  font-size: 12px;
+}
+.titlebar .qat {
+  display: flex;
+  gap: 12px;
+  opacity: 0.85;
+}
+.titlebar .title {
+  flex: 1;
+  text-align: center;
+}
+.titlebar .win-controls {
+  display: flex;
+  gap: 16px;
+}
+
+/* ---- Ribbon ---- */
+.ribbon {
+  flex: none;
+  background: var(--xlsx-toolbar);
+  border-bottom: 1px solid #d8d6d3;
+}
+.ribbon-tabs {
+  display: flex;
+  padding: 0 6px;
+  font-size: 12px;
+  color: #444;
+}
+.ribbon-tab {
+  padding: 5px 11px 4px;
+  cursor: default;
+}
+.ribbon-tab.active {
+  background: #fff;
+  color: #1a1a1a;
+  font-weight: 600;
+  border: 1px solid #d8d6d3;
+  border-bottom-color: #fff;
+  box-shadow: inset 0 -3px 0 var(--xlsx-selected);
+}
+.ribbon-body {
+  display: flex;
+  align-items: stretch;
+  height: 72px;
+  padding: 4px 8px 0;
+  background: #fff;
+  border-top: 1px solid #e5e3e0;
+}
+.ribbon-group {
+  display: flex;
+  flex-direction: column;
+  min-width: 84px;
+  padding: 0 10px;
+  border-right: 1px solid #e5e3e0;
+}
+.ribbon-group:last-child {
+  border-right: none;
+}
+.ribbon-group-items {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.ribbon-group-label {
+  text-align: center;
+  font-size: 10px;
+  color: #8a8886;
+  padding-bottom: 3px;
+}
+.ribbon-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 26px;
+  padding: 0 10px;
+  font-size: 12px;
+  color: #333;
+  background: #fff;
+  border: 1px solid transparent;
+  border-radius: 2px;
+  cursor: pointer;
+}
+.ribbon-btn:hover {
+  background: var(--xlsx-toolbar);
+  border-color: #d8d6d3;
+}
+.ribbon-btn:active {
+  background: #edebe9;
+}
+.ph-block {
+  width: 14px;
+  height: 14px;
+  border-radius: 2px;
+  background: #d8d6d3;
+}
+.ph-block.wide {
+  width: 26px;
+  height: 10px;
+}
+.ph-block.tall {
+  width: 10px;
+  height: 24px;
+}
+
+/* ---- 名称框 + fx 公式栏 ---- */
+.formula-bar {
+  flex: none;
+  display: flex;
+  align-items: stretch;
+  height: 26px;
+  background: #fff;
+  border-bottom: 1px solid #d8d6d3;
+}
+.name-box {
+  width: 96px;
+  display: flex;
+  align-items: center;
+  padding: 0 8px;
+  border-right: 1px solid #d8d6d3;
+  font-size: 12px;
+  color: #111;
+}
+.fx-label {
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+  border-right: 1px solid #e5e3e0;
+  font-family: 'Cambria Math', Consolas, serif;
+  font-style: italic;
+  font-size: 13px;
+  color: #444;
+}
+.fx-input {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  padding: 0 8px;
+  font-size: 12px;
+  color: #111;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+/* ---- 网格 ---- */
+.grid-wrap {
+  flex: 1;
+  overflow: auto;
+  background: #fff;
+}
+.grid {
+  position: relative;
+  display: grid;
+  grid-template-columns: var(--row-header-w) repeat(8, var(--col-w));
+  grid-auto-rows: var(--row-h);
+  width: max-content;
+  min-width: 100%;
+}
+.gh,
+.rh {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--xlsx-toolbar);
+  color: #555;
+  font-size: 12px;
+  border-right: 1px solid #e0e0e0;
+  border-bottom: 1px solid #e0e0e0;
+}
+.rh {
+  cursor: pointer;
+}
+.gh.active,
+.rh.active {
+  background: var(--xlsx-ok-bg);
+  color: var(--xlsx-ok-fg);
+  font-weight: 600;
+}
+.rh.dim {
+  color: var(--xlsx-dim-fg);
+}
+.rh.dim.active {
+  color: var(--xlsx-ok-fg);
+}
+.cell {
+  position: relative;
+  display: flex;
+  align-items: center;
+  padding: 0 6px;
+  background: #fff;
+  border-right: 1px solid #e0e0e0;
+  border-bottom: 1px solid #e0e0e0;
+  font-size: 12px;
+  white-space: nowrap;
+  cursor: cell;
+}
+.cell > span {
+  position: relative;
+}
+.cell.dim {
+  background: var(--xlsx-dim);
+  color: var(--xlsx-dim-fg);
+  font-style: italic;
+}
+.bar-track {
+  width: 100%;
+  height: 12px;
+  margin-right: 4px;
+  border-radius: 2px;
+  background: #edebe9;
+  overflow: hidden;
+}
+.bar-fill {
+  height: 100%;
+  border-radius: 2px;
+  background: var(--xlsx-selected);
+  opacity: 0.55;
+}
+/* 选中框：绿色 2px 边框 + 右下角 6px 实心拖拽块（绝对定位覆盖层） */
+.selection-frame {
+  position: absolute;
+  z-index: 2;
+  pointer-events: none;
+  border: 2px solid var(--xlsx-selected);
+}
+.selection-frame::after {
+  content: '';
+  position: absolute;
+  right: -5px;
+  bottom: -5px;
+  width: 6px;
+  height: 6px;
+  background: var(--xlsx-selected);
+}
+
+/* ---- Sheet 标签栏 ---- */
+.sheet-tabs {
+  flex: none;
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  padding: 0 8px;
+  height: 26px;
+  background: var(--xlsx-toolbar);
+  border-top: 1px solid #d8d6d3;
+}
+.sheet-tab {
+  display: flex;
+  align-items: center;
+  height: 22px;
+  padding: 0 14px;
+  font-size: 12px;
+  color: #444;
+  border: 1px solid transparent;
+  cursor: default;
+}
+.sheet-tab.active {
+  background: #fff;
+  color: #111;
+  font-weight: 600;
+  border-color: #d8d6d3;
+  border-bottom-color: #fff;
+  box-shadow: inset 0 -2px 0 var(--xlsx-selected);
+}
+
+/* ---- 底部状态栏 ---- */
+.statusbar {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 24px;
+  padding: 0 12px;
+  background: var(--xlsx-green);
+  color: #fff;
+  font-size: 12px;
+}
