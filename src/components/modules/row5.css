@@ -1,0 +1,48 @@
+/* ===== Row5 拜机房神兽（issue #10）：假死紫灰视觉 + Edge B 反噬闪烁 ===== */
+
+/* 假死：Row5 行紫灰底（Grid 在 stuck 时给该行 rh/cell 加 row5-stuck class） */
+.rh.row5-stuck,
+.cell.row5-stuck {
+  background: #b3a7c9;
+  color: #2e2440;
+}
+
+/* 假死时 F5 单元格的下拉：#STUCK! 提示 + [重启服务] */
+.row5-stuck-select {
+  width: 100%;
+  height: 16px;
+  font-size: 12px;
+  line-height: 1;
+  padding: 0 2px;
+  color: #2e2440;
+  background: #fff;
+  border: 1px solid #8a7ba8;
+  border-radius: 2px;
+  cursor: pointer;
+}
+
+/* 正常/已拆占位 */
+.row5-running {
+  font-size: 12px;
+  color: #217346;
+}
+
+/* Edge B 反噬命中：0.6s 闪两下（GDD 02 §2.5「命中时该单元格闪一下」，两下更醒目） */
+@keyframes edge-b-flash {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  25% {
+    opacity: 0.15;
+  }
+  50% {
+    opacity: 1;
+  }
+  75% {
+    opacity: 0.15;
+  }
+}
+.cell.flash-hit {
+  animation: edge-b-flash 0.6s linear 1;
+}

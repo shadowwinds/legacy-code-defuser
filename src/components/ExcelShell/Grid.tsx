@@ -7,6 +7,7 @@ import { Comment } from './Comment'
 import { DataBar } from './DataBar'
 import { Row4GOverlay } from '../modules/Row4GOverlay'
 import { TrackerOverlay } from './TrackerOverlay'
+import { Row5Module } from '../modules/Row5Module'
 
 /** 8 行网格：行号 1–8 + 列标 A–H，E 列为数据条列；点击单元格/行号选中 */
 export function Grid() {
@@ -18,6 +19,9 @@ export function Grid() {
   const locks = useGameStore((s) => s.locks)
   // Row2 #DEADLOCK! 死锁（row2Slice）：紫底呼吸 + 非 G/E 列禁点
   const deadlocked = useGameStore((s) => s.deadlocked)
+  // Row5（issue #10）：假死阶段 + Edge B 反噬命中行
+  const row5Stuck = useGameStore((s) => s.row5Phase === 'stuck')
+  const edgeBHitRow = useGameStore((s) => s.edgeBHitRow)
 
   const rowSelected = selectedCol === null
   // Row1 的 A 列是合并单元格：选中 A1 时选中框横跨合并宽度
@@ -59,11 +63,18 @@ export function Grid() {
           const isSelRow = selectedRow === r.row
           const locked = isLocked(r.row)
           const row2Dead = r.row === 2 && deadlocked
+          // Row5 假死紫灰行 + Edge B 命中行闪烁（样式在 modules/row5.css）
+          const rowMods =
+            `${r.row === 5 && row5Stuck ? ' row5-stuck' : ''}` +
+            `${edgeBHitRow === r.row ? ' flash-hit' : ''}`
           const cells: JSX.Element[] = []
           let col = 1
           while (col <= COL_COUNT) {
             const row2Blocked = row2Dead && col !== 5 && col !== 7
-            const cls = `cell${r.kind === 'dim' ? ' dim' : ''}${locked ? ' locked' : ''}${row2Dead ? ' row2-deadlocked' : ''}${row2Blocked ? ' row2-blocked' : ''}`
+            const cls =
+              `cell${r.kind === 'dim' ? ' dim' : ''}${locked ? ' locked' : ''}` +
+              `${row2Dead ? ' row2-deadlocked' : ''}${row2Blocked ? ' row2-blocked' : ''}` +
+              rowMods
             if (col === 5) {
               // E 列：模块行接引擎倒计时数据条；非模块行不渲染
               const mod = r.kind === 'module' ? modules[r.row - 1] : undefined
@@ -81,7 +92,7 @@ export function Grid() {
                   key={col}
                   className={cls}
                   style={{ gridColumn: `span ${r.span}` }}
-                  onClick={() => selectCell(r.row, 1)}
+                  onClick={row2Blocked ? undefined : () => selectCell(r.row, 1)}
                 >
                   <span>{r.text}</span>
                   {r.comment ? <Comment text={r.comment} /> : null}
@@ -98,6 +109,7 @@ export function Grid() {
               >
                 <span>{col === 1 ? r.text : ''}</span>
                 {col === 1 && r.comment ? <Comment text={r.comment} /> : null}
+                {r.row === 5 && col === 6 ? <Row5Module /> : null}
               </div>,
             )
             col += 1
@@ -105,7 +117,7 @@ export function Grid() {
           return (
             <Fragment key={r.row}>
               <div
-                className={`rh${r.kind === 'dim' ? ' dim' : ''}${isSelRow ? ' active' : ''}${locked ? ' locked' : ''}${row2Dead ? ' row2-deadlocked' : ''}`}
+                className={`rh${r.kind === 'dim' ? ' dim' : ''}${isSelRow ? ' active' : ''}${locked ? ' locked' : ''}${row2Dead ? ' row2-deadlocked' : ''}${r.row === 5 && row5Stuck ? ' row5-stuck' : ''}`}
                 onClick={() => selectRow(r.row)}
               >
                 {r.row}

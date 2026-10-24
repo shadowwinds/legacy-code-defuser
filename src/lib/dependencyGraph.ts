@@ -55,7 +55,7 @@ export type EdgeBPickTarget = (aliveRows: readonly number[]) => number | null
 /** Edge B 反噬回调签名（#10 接线示例：applyPenalty({ row: target, sec: EDGE_B.penaltySec, source: 'edge-b' })） */
 export type EdgeBCallback = (targetRow: number) => void
 
-/** Edge B · 重启是赌博：Row5 仪式成功 → 随机 1 个未拆模块 -5s（数据结构先行，触发由 #10 实装） */
+/** Edge B · 重启是赌博：Row5 仪式成功 → 随机 1 个未拆模块 -5s（#10 实装触发与目标挑选） */
 export const EDGE_B: DependencyEdge & { pickTarget: EdgeBPickTarget | null } = {
   id: 'edge-b',
   name: '重启是赌博',
@@ -63,5 +63,8 @@ export const EDGE_B: DependencyEdge & { pickTarget: EdgeBPickTarget | null } = {
   to: [],
   penaltySec: 5,
   condition: () => false, // 回调驱动（仪式成功瞬间），不走谓词轮询
-  pickTarget: null, // #10 接入随机挑选
+  pickTarget: (aliveRows) => {
+    if (aliveRows.length === 0) return null
+    return aliveRows[Math.floor(Math.random() * aliveRows.length)] ?? null
+  }, // #10 接入随机挑选
 }
