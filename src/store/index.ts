@@ -7,6 +7,7 @@ import { createRow4Slice } from './row4Slice'
 import { createRow2Slice } from './row2Slice'
 import { createRow5Slice } from './row5Slice'
 import { createRow3Slice } from './row3Slice'
+import { createSkillSlice } from './skillSlice'
 import type { SelectionState } from './selectionSlice'
 import type { SheetState } from './sheetSlice'
 import type { EngineState } from './engineSlice'
@@ -15,6 +16,7 @@ import type { Row4State } from './row4Slice'
 import type { Row2State } from './row2Slice'
 import type { Row5State } from './row5Slice'
 import type { Row3State } from './row3Slice'
+import type { SkillState } from './skillSlice'
 
 /**
  * 全局游戏状态根类型。
@@ -27,7 +29,8 @@ export type RootState = SelectionState &
   Row4State &
   Row2State &
   Row5State &
-  Row3State
+  Row3State &
+  SkillState
 
 export const useGameStore = create<RootState>()((...a) => ({
   ...createSelectionSlice(...a),
@@ -38,4 +41,5 @@ export const useGameStore = create<RootState>()((...a) => ({
   ...createRow2Slice(...a),
   ...createRow5Slice(...a),
   ...createRow3Slice(...a),
+  ...createSkillSlice(...a),
 }))

@@ -1,4 +1,4 @@
-import { Fragment, useState } from 'react'
+import { Fragment, useRef, useState } from 'react'
 import type { CSSProperties, PointerEvent as ReactPointerEvent } from 'react'
 import { GRID_ROWS } from '../../data/gridRows'
 import { PASSCODES } from '../../data/passcodes'
@@ -63,6 +63,23 @@ export function Grid() {
   const dColWidth = useGameStore((s) => s.dColWidth)
   const setDColWidth = useGameStore((s) => s.setDColWidth)
   const passcodeIndex = useGameStore((s) => s.passcodeIndex)
+  // 技能与装饰（issue #12）：格式刷假绿 / 冻结窗格 ❄ / Row8 禁操
+  const applyPenalty = useGameStore((s) => s.applyPenalty)
+  const formatBrush = useGameStore((s) => s.formatBrush)
+  const greenWashRow = useGameStore((s) => s.greenWashRow)
+  const frozenRowsUntil = useGameStore((s) => s.frozenRowsUntil)
+
+  // Row8 禁操行：点击全场 -30s，1s 防抖 + 短暂红闪
+  const [row8Flash, setRow8Flash] = useState(false)
+  const lastRow8ClickAt = useRef(0)
+  const handleRow8Click = () => {
+    const now = Date.now()
+    if (now - lastRow8ClickAt.current < 1000) return
+    lastRow8ClickAt.current = now
+    applyPenalty({ all: true, sec: 30, source: 'row8' })
+    setRow8Flash(true)
+    window.setTimeout(() => setRow8Flash(false), 500)
+  }
 
   const rowSelected = selectedCol === null
   // Row1 的 A 列是合并单元格：选中 A1 时选中框横跨合并宽度
@@ -150,9 +167,15 @@ export function Grid() {
           const locked = isLocked(r.row)
           const row2Dead = r.row === 2 && deadlocked
           // Row5 假死紫灰行 + Edge B 命中行闪烁（样式在 modules/row5.css）
-          const rowMods =
+          const row5Mods =
             `${r.row === 5 && row5Stuck ? ' row5-stuck' : ''}` +
             `${edgeBHitRow === r.row ? ' flash-hit' : ''}`
+          // 格式刷假绿（skillSlice）：效果期该行数据条强制绿（CSS 覆盖，引擎照跑）
+          const greenWashed = greenWashRow === r.row && formatBrush.activeUntil > Date.now()
+          // 冻结窗格（engineSlice）：行号头 ❄ + 浅蓝
+          const frozen = (frozenRowsUntil[r.row] ?? 0) > Date.now()
+          // Row8 禁操行：任何单元格点击 → 全场 -30s
+          const isRow8 = r.kind === 'decor' && r.text.includes('🐉')
           const cells: JSX.Element[] = []
           let col = 1
           while (col <= COL_COUNT) {
@@ -160,7 +183,8 @@ export function Grid() {
             const cls =
               `cell${r.kind === 'dim' ? ' dim' : ''}${locked ? ' locked' : ''}` +
               `${row2Dead ? ' row2-deadlocked' : ''}${row2Blocked ? ' row2-blocked' : ''}` +
-              rowMods
+              `${greenWashed ? ' green-wash' : ''}${isRow8 && row8Flash ? ' row8-flash' : ''}` +
+              row5Mods
             if (col === 5) {
               // E 列：模块行接引擎倒计时数据条；非模块行不渲染
               const mod = r.kind === 'module' ? modules[r.row - 1] : undefined
@@ -198,7 +222,9 @@ export function Grid() {
                   key={col}
                   className={cls}
                   style={{ gridColumn: `span ${r.span}` }}
-                  onClick={row2Blocked ? undefined : () => selectCell(r.row, 1)}
+                  onClick={
+                    row2Blocked ? undefined : isRow8 ? handleRow8Click : () => selectCell(r.row, 1)
+                  }
                 >
                   <span>{r.text}</span>
                   {r.comment ? <Comment text={r.comment} /> : null}
@@ -211,7 +237,13 @@ export function Grid() {
               <div
                 key={col}
                 className={cls}
-                onClick={row2Blocked ? undefined : () => selectCell(r.row, col)}
+                onClick={
+                  row2Blocked
+                    ? undefined
+                    : isRow8
+                      ? handleRow8Click
+                      : () => selectCell(r.row, col)
+                }
               >
                 <span>{col === 1 ? r.text : ''}</span>
                 {col === 1 && r.comment ? <Comment text={r.comment} /> : null}
@@ -223,10 +255,10 @@ export function Grid() {
           return (
             <Fragment key={r.row}>
               <div
-                className={`rh${r.kind === 'dim' ? ' dim' : ''}${isSelRow ? ' active' : ''}${locked ? ' locked' : ''}${row2Dead ? ' row2-deadlocked' : ''}${r.row === 5 && row5Stuck ? ' row5-stuck' : ''}`}
+                className={`rh${r.kind === 'dim' ? ' dim' : ''}${isSelRow ? ' active' : ''}${locked ? ' locked' : ''}${row2Dead ? ' row2-deadlocked' : ''}${r.row === 5 && row5Stuck ? ' row5-stuck' : ''}${greenWashed ? ' green-wash' : ''}${frozen ? ' frozen' : ''}`}
                 onClick={() => selectRow(r.row)}
               >
-                {r.row}
+                {frozen ? `${r.row} ❄` : r.row}
               </div>
               {cells}
             </Fragment>
