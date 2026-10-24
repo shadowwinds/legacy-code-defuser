@@ -16,6 +16,8 @@ export function Grid() {
   const selectRow = useGameStore((s) => s.selectRow)
   const modules = useGameStore((s) => s.modules)
   const locks = useGameStore((s) => s.locks)
+  // Row2 #DEADLOCK! 死锁（row2Slice）：紫底呼吸 + 非 G/E 列禁点
+  const deadlocked = useGameStore((s) => s.deadlocked)
 
   const rowSelected = selectedCol === null
   // Row1 的 A 列是合并单元格：选中 A1 时选中框横跨合并宽度
@@ -56,10 +58,12 @@ export function Grid() {
         {GRID_ROWS.map((r) => {
           const isSelRow = selectedRow === r.row
           const locked = isLocked(r.row)
+          const row2Dead = r.row === 2 && deadlocked
           const cells: JSX.Element[] = []
           let col = 1
           while (col <= COL_COUNT) {
-            const cls = `cell${r.kind === 'dim' ? ' dim' : ''}${locked ? ' locked' : ''}`
+            const row2Blocked = row2Dead && col !== 5 && col !== 7
+            const cls = `cell${r.kind === 'dim' ? ' dim' : ''}${locked ? ' locked' : ''}${row2Dead ? ' row2-deadlocked' : ''}${row2Blocked ? ' row2-blocked' : ''}`
             if (col === 5) {
               // E 列：模块行接引擎倒计时数据条；非模块行不渲染
               const mod = r.kind === 'module' ? modules[r.row - 1] : undefined
@@ -87,7 +91,11 @@ export function Grid() {
               continue
             }
             cells.push(
-              <div key={col} className={cls} onClick={() => selectCell(r.row, col)}>
+              <div
+                key={col}
+                className={cls}
+                onClick={row2Blocked ? undefined : () => selectCell(r.row, col)}
+              >
                 <span>{col === 1 ? r.text : ''}</span>
                 {col === 1 && r.comment ? <Comment text={r.comment} /> : null}
               </div>,
@@ -97,7 +105,7 @@ export function Grid() {
           return (
             <Fragment key={r.row}>
               <div
-                className={`rh${r.kind === 'dim' ? ' dim' : ''}${isSelRow ? ' active' : ''}${locked ? ' locked' : ''}`}
+                className={`rh${r.kind === 'dim' ? ' dim' : ''}${isSelRow ? ' active' : ''}${locked ? ' locked' : ''}${row2Dead ? ' row2-deadlocked' : ''}`}
                 onClick={() => selectRow(r.row)}
               >
                 {r.row}
