@@ -99,7 +99,8 @@
 .ribbon-group-label {
   text-align: center;
   font-size: 10px;
-  color: #8a8886;
+  /* #767676:白底 4.54:1,过 WCAG AA(Lighthouse accessibility/color-contrast) */
+  color: #767676;
   padding-bottom: 3px;
 }
 .ribbon-btn {
@@ -398,6 +399,43 @@
 }
 .sheet-pane.active {
   display: flex;
+}
+
+/* Tab 切换滑动过渡（#27）：方向性平移淡入;reduced-motion 降级为直接切换 */
+.sheet-pane.active.slide-fwd {
+  animation: sheet-slide-fwd 0.25s ease-out;
+}
+.sheet-pane.active.slide-back {
+  animation: sheet-slide-back 0.25s ease-out;
+}
+
+@keyframes sheet-slide-fwd {
+  from {
+    opacity: 0.2;
+    transform: translateX(28px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes sheet-slide-back {
+  from {
+    opacity: 0.2;
+    transform: translateX(-28px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sheet-pane.active.slide-fwd,
+  .sheet-pane.active.slide-back {
+    animation: none;
+  }
 }
 
 /* ---- Sheet 标签栏 ---- */
