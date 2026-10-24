@@ -11,10 +11,6 @@ export interface GridRow {
   span?: number
   /** 单元格批注文案（红三角标记，hover 弹出）；缺省无批注 */
   comment?: string
-  /** E 列数据条剩余秒数（issue #3 静态示例值；dim/decor 行缺省不渲染数据条） */
-  remainingSec?: number
-  /** 数据条初始秒数，宽度 = remainingSec / initialSec（#4 票接入真实倒计时） */
-  initialSec?: number
 }
 
 /**
@@ -23,18 +19,16 @@ export interface GridRow {
  * 可在本文件补充 moduleId 字段并让 Grid 按类型挂载。
  */
 export const GRID_ROWS: GridRow[] = [
-  { row: 1, text: '跨部门汇总合并单元格', kind: 'module', span: 4, remainingSec: 80, initialSec: 100 },
-  { row: 2, text: '防欠薪定时自爆网关', kind: 'module', remainingSec: 45, initialSec: 100 },
-  { row: 3, text: '乱码考古·口令验证', kind: 'module', remainingSec: 12, initialSec: 100 },
+  { row: 1, text: '跨部门汇总合并单元格', kind: 'module', span: 4 },
+  { row: 2, text: '防欠薪定时自爆网关', kind: 'module' },
+  { row: 3, text: '乱码考古·口令验证', kind: 'module' },
   {
     row: 4,
     text: '财务对账平账脚本_勿动',
     kind: 'module',
-    remainingSec: 60,
-    initialSec: 100,
     comment: '兄弟，这脚本有祖传浮点精度 Bug，快炸的时候千万别改代码，凑数就行。——隔壁组 2019',
   },
-  { row: 5, text: '拜机房神兽重启仪式', kind: 'module', remainingSec: 100, initialSec: 100 },
+  { row: 5, text: '拜机房神兽重启仪式', kind: 'module' },
   {
     row: 6,
     text: 'left-pad #MISSING!',

@@ -405,3 +405,12 @@
   color: #fff;
   font-size: 12px;
 }
+.statusbar-left {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+.fuse-clock {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.5px;
+}

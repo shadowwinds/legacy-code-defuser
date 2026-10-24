@@ -8,7 +8,7 @@ export interface DataBarProps {
 /**
  * E 列数据条（Excel 条件格式三色数据条）。
  * 配色档位（GDD 02 §2.1）：>60s 绿 / 20–60s 黄 / <20s 红；
- * 宽度 = remainingSec / initialSec，0.1s linear 过渡（#4 票接入真实倒计时）。
+ * 宽度 = remainingSec / initialSec，0.1s linear 过渡；终局后数值定格。
  */
 export function DataBar({ remainingSec, initialSec }: DataBarProps) {
   const pct = initialSec > 0 ? Math.max(0, Math.min(100, (remainingSec / initialSec) * 100)) : 0

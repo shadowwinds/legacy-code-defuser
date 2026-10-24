@@ -12,6 +12,7 @@ export function Grid() {
   const selectedCol = useGameStore((s) => s.selectedCol)
   const selectCell = useGameStore((s) => s.selectCell)
   const selectRow = useGameStore((s) => s.selectRow)
+  const modules = useGameStore((s) => s.modules)
 
   const rowSelected = selectedCol === null
   // Row1 的 A 列是合并单元格：选中 A1 时选中框横跨合并宽度
@@ -53,12 +54,11 @@ export function Grid() {
           while (col <= COL_COUNT) {
             const cls = `cell${r.kind === 'dim' ? ' dim' : ''}`
             if (col === 5) {
-              // E 列：数据条（issue #3 静态示例；dim/decor 行不渲染）
+              // E 列：模块行接引擎倒计时数据条；非模块行不渲染
+              const mod = r.kind === 'module' ? modules[r.row - 1] : undefined
               cells.push(
                 <div key={col} className={cls}>
-                  {r.remainingSec !== undefined && r.initialSec !== undefined ? (
-                    <DataBar remainingSec={r.remainingSec} initialSec={r.initialSec} />
-                  ) : null}
+                  {mod ? <DataBar remainingSec={mod.remaining} initialSec={mod.initial} /> : null}
                 </div>,
               )
               col += 1
