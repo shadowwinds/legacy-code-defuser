@@ -1,5 +1,8 @@
 import { useEffect } from 'react'
 import { useGameStore } from '../../store'
+import { FormatSelect } from '../modules/FormatSelect'
+import './excelShell.css'
+import '../modules/row3.css'
 import { FormulaBar } from './FormulaBar'
 import { Grid } from './Grid'
 import { ManualSheet } from './ManualSheet'
@@ -35,7 +38,10 @@ export function ExcelShell() {
     <div className="excel-shell">
       <TitleBar />
       <Ribbon />
-      <FormulaBar />
+      <div className="formula-bar-anchor">
+        <FormulaBar />
+        <FormatSelect />
+      </div>
       <div className={`sheet-pane${activeSheet === 'sheet1' ? ' active' : ''}`}>
         <Grid />
       </div>
