@@ -5,6 +5,7 @@ import { COL_COUNT, colLetter } from '../../lib/grid'
 import { useGameStore } from '../../store'
 import { Comment } from './Comment'
 import { DataBar } from './DataBar'
+import { Row4GOverlay } from '../modules/Row4GOverlay'
 import { TrackerOverlay } from './TrackerOverlay'
 
 /** 8 行网格：行号 1–8 + 列标 A–H，E 列为数据条列；点击单元格/行号选中 */
@@ -107,6 +108,7 @@ export function Grid() {
         })}
 
         <div className="selection-frame" style={frameStyle} />
+        <Row4GOverlay />
         <TrackerOverlay />
       </div>
     </div>
