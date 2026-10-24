@@ -182,6 +182,8 @@ export function Grid() {
           const cells: JSX.Element[] = []
           let col = 1
           while (col <= COL_COUNT) {
+            // 闭包捕获当次值：onClick 延迟触发，直接引用循环变量会拿到循环结束后的越界值
+            const c = col
             const row2Blocked = row2Dead && col !== 5 && col !== 7
             const cls =
               `cell${r.kind === 'dim' ? ' dim' : ''}${locked ? ' locked' : ''}` +
@@ -192,7 +194,7 @@ export function Grid() {
               // E 列：模块行接引擎倒计时数据条；非模块行不渲染
               const mod = r.kind === 'module' ? modules[r.row - 1] : undefined
               cells.push(
-                <div key={col} className={cls}>
+                <div key={c} className={cls}>
                   {mod ? <DataBar remainingSec={mod.remaining} initialSec={mod.initial} /> : null}
                 </div>,
               )
@@ -202,7 +204,7 @@ export function Grid() {
             if (r.row === 3 && col === 4) {
               // D3 乱码考古：#### → 序列值 → 短日期（row3Slice 三阶段）
               cells.push(
-                <div key={col} className={cls} onClick={() => selectCell(r.row, col)}>
+                <div key={c} className={cls} onClick={() => selectCell(r.row, c)}>
                   <span className="d3-value">{d3Text}</span>
                 </div>,
               )
@@ -212,7 +214,7 @@ export function Grid() {
             if (r.row === 3 && col === 6 && passcodeVisible) {
               // F3 口令输入框：阶段③填口令
               cells.push(
-                <div key={col} className={cls} onClick={() => selectCell(r.row, col)}>
+                <div key={c} className={cls} onClick={() => selectCell(r.row, c)}>
                   <Row3PasscodeCell />
                 </div>,
               )
@@ -222,7 +224,7 @@ export function Grid() {
             if (r.span && col === 1) {
               cells.push(
                 <div
-                  key={col}
+                  key={c}
                   className={cls}
                   style={{ gridColumn: `span ${r.span}` }}
                   onClick={
@@ -239,14 +241,14 @@ export function Grid() {
             }
             cells.push(
               <div
-                key={col}
+                key={c}
                 className={cls}
                 onClick={
                   row2Blocked
                     ? undefined
                     : isRow8
                       ? handleRow8Click
-                      : () => selectCell(r.row, col)
+                      : () => selectCell(r.row, c)
                 }
               >
                 <span>{col === 1 ? r.text : ''}</span>
