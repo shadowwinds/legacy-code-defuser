@@ -3,6 +3,8 @@ import type { CSSProperties } from 'react'
 import { GRID_ROWS } from '../../data/gridRows'
 import { COL_COUNT, colLetter } from '../../lib/grid'
 import { useGameStore } from '../../store'
+import { Comment } from './Comment'
+import { DataBar } from './DataBar'
 
 /** 8 行网格：行号 1–8 + 列标 A–H，E 列为数据条列；点击单元格/行号选中 */
 export function Grid() {
@@ -51,12 +53,12 @@ export function Grid() {
           while (col <= COL_COUNT) {
             const cls = `cell${r.kind === 'dim' ? ' dim' : ''}`
             if (col === 5) {
-              // E 列：数据条容器（本票静态）
+              // E 列：数据条（issue #3 静态示例；dim/decor 行不渲染）
               cells.push(
                 <div key={col} className={cls}>
-                  <div className="bar-track">
-                    <div className="bar-fill" style={{ width: `${r.barWidth ?? 0}%` }} />
-                  </div>
+                  {r.remainingSec !== undefined && r.initialSec !== undefined ? (
+                    <DataBar remainingSec={r.remainingSec} initialSec={r.initialSec} />
+                  ) : null}
                 </div>,
               )
               col += 1
@@ -71,6 +73,7 @@ export function Grid() {
                   onClick={() => selectCell(r.row, 1)}
                 >
                   <span>{r.text}</span>
+                  {r.comment ? <Comment text={r.comment} /> : null}
                 </div>,
               )
               col += r.span
@@ -79,6 +82,7 @@ export function Grid() {
             cells.push(
               <div key={col} className={cls} onClick={() => selectCell(r.row, col)}>
                 <span>{col === 1 ? r.text : ''}</span>
+                {col === 1 && r.comment ? <Comment text={r.comment} /> : null}
               </div>,
             )
             col += 1
