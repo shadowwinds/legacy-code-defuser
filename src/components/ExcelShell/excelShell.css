@@ -259,6 +259,41 @@
   position: relative;
   color: var(--bar-fg);
 }
+/* 黄档：单元格轻微闪烁（慢速温和，GDD 02 §2.1） */
+@keyframes bar-warn-blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.55;
+  }
+}
+.data-bar[data-tier='warn'] .data-bar-fill {
+  animation: bar-warn-blink 2s ease-in-out infinite;
+}
+/* <10s：单元格抖动（GDD 04 §4.4 @keyframes cell-shake） */
+@keyframes cell-shake {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  20% {
+    transform: translate(-1px, 1px);
+  }
+  40% {
+    transform: translate(1px, -1px);
+  }
+  60% {
+    transform: translate(-1px, -1px);
+  }
+  80% {
+    transform: translate(1px, 1px);
+  }
+}
+.data-bar[data-urgent] {
+  animation: cell-shake 0.35s linear infinite;
+}
 
 /* 单元格批注：右上角红三角标记，hover 弹出米黄批注框 */
 .cell > .comment {
@@ -314,6 +349,32 @@
   width: 6px;
   height: 6px;
   background: var(--xlsx-selected);
+}
+
+/* 行锁定（penaltySlice lockSec）：半透明 + 禁用光标 */
+.rh.locked,
+.cell.locked {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* 耦合追踪箭头（TrackerOverlay）：Excel「追踪从属单元格」拟物，红线=连坐生效中 */
+.tracker-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  overflow: visible;
+  pointer-events: none;
+}
+.tracker-line {
+  fill: none;
+  stroke: #e02b2b;
+  stroke-width: 1.5;
+}
+.tracker-src-dot {
+  fill: #fff;
+  stroke: #e02b2b;
+  stroke-width: 1.5;
 }
 
 /* ---- Sheet 容器：两片 Sheet 常驻挂载（引擎挂点不可卸载），CSS 显隐切换 ---- */

@@ -70,6 +70,7 @@ export const createEngineSlice: StateCreator<RootState, [], [], EngineState> = (
     lastTickAt = now
 
     const s = get()
+    s.pruneLocks() // 锁定到期自动解锁（penaltySlice）
     if (s.status !== 'playing' || deltaSec <= 0) return
 
     const fuseRemaining = Math.max(0, s.fuseRemaining - deltaSec)
