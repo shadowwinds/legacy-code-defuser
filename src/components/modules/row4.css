@@ -1,0 +1,89 @@
+/* ===== Row4 财务对账平账模块（issue #7）：G 列覆盖层 / 行内编辑 / Edge A =====
+   坐标全部走 global.css 的 --row-header-w/--col-w/--row-h 变量（CSS calc 可用，
+   SVG 才需要硬编码镜像——见 TrackerOverlay 注释）。 */
+
+/* G 列覆盖层：绝对定位于 .grid 内，随滚动容器滚动；容器本身不拦截事件，
+   由子格子各自接管（Row8 格穿透） */
+.row4-g-overlay {
+  position: absolute;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.row4-g-cell {
+  position: absolute;
+  left: 0;
+  width: var(--col-w);
+  height: var(--row-h);
+  pointer-events: auto;
+  cursor: cell;
+  font-size: 12px;
+  color: #333;
+}
+.row4-g-cell:hover {
+  background: var(--xlsx-toolbar);
+}
+/* Row8「别动它能跑」禁操格：视觉还原垃圾数据，交互全穿透 */
+.row4-g-cell.inert {
+  pointer-events: none;
+  cursor: default;
+}
+/* 账平后（过关）：G 列条件格式绿，呼应 DataBar 满条 */
+.row4-g-cell.balanced {
+  background: var(--xlsx-ok-bg);
+}
+.row4-g-cell.balanced:hover {
+  background: var(--xlsx-ok-bg);
+}
+
+.row4-g-val {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  padding: 0 6px;
+}
+/* 数字右对齐（Excel 数字对齐规则）；浮点污染长小数溢出即裁切，title 兜底 */
+.row4-g-val.num,
+.row4-g-val.formula {
+  justify-content: flex-end;
+  white-space: nowrap;
+  overflow: hidden;
+}
+/* Excel 错误值：居中 + 错误红字 */
+.row4-g-val.err {
+  justify-content: center;
+  color: var(--xlsx-err-fg);
+  font-weight: 600;
+}
+
+/* 行内编辑：拟 Excel 单元格编辑态（选中色细边框 + 白底） */
+.row4-g-edit {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  padding: 0 4px;
+  background: #fff;
+  border: 1px solid var(--xlsx-selected);
+  outline: none;
+  font: inherit;
+  font-size: 12px;
+  color: #111;
+}
+
+/* 偷懒公式彩蛋批注泡：米黄批注样式（镜像 excelShell.css .comment-pop），4s 自动消失 */
+.row4-egg {
+  position: absolute;
+  left: calc(100% + 6px);
+  top: -6px;
+  z-index: 5;
+  padding: 5px 9px;
+  background: var(--xlsx-comment);
+  border: 1px solid #a8a8a8;
+  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  color: #1a1a1a;
+  font-size: 12px;
+  line-height: 1.6;
+  white-space: nowrap;
+  pointer-events: none;
+}
