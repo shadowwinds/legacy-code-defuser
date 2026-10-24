@@ -1,0 +1,305 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>桌面壳低保真原型 · issue #18(视觉基线待定稿)</title>
+<style>
+  /* ============ 低保真原型骨架:全 CSS 零美术资产(延续 ADR-0001 原则) ============ */
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; overflow: hidden; }
+  body {
+    font-family: "Microsoft YaHei", "Segoe UI", sans-serif;
+    background: #111;
+    user-select: none;
+  }
+  /* 审阅工具条(原型专用,非交付物) */
+  .proto-bar {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 99;
+    display: flex; gap: 8px; padding: 8px 12px;
+    background: #000c; color: #eee; font-size: 12px; align-items: center;
+  }
+  .proto-bar b { color: #ffd75e; margin-right: 8px; }
+  .proto-bar button {
+    padding: 4px 12px; background: #333; color: #eee; border: 1px solid #555;
+    cursor: pointer; font-size: 12px;
+  }
+  .proto-bar button.on { background: #0e7a0d; border-color: #0e7a0d; }
+  .proto-note { margin-left: auto; color: #999; }
+
+  .stage { position: absolute; inset: 0; display: none; }
+  .stage.on { display: block; }
+
+  /* ============ 场景A:开场回忆杀动画壳 ============ */
+  #stage-intro { background: #000; }
+  .frame {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 18px; color: #ddd; text-align: center; padding: 0 15vw;
+  }
+  .frame .t { font-size: 15px; color: #888; letter-spacing: 2px; }
+  .frame .big { font-size: 26px; font-weight: 700; color: #eee; line-height: 1.7; }
+  .frame .sub { font-size: 14px; color: #aaa; line-height: 1.8; }
+  .chat-mock { width: min(420px, 80vw); background: #222; border: 1px solid #444; border-radius: 10px; padding: 14px; }
+  .chat-mock .row { display: flex; margin: 8px 0; align-items: flex-end; gap: 8px; }
+  .chat-mock .row.r { flex-direction: row-reverse; }
+  .chat-mock .who { font-size: 11px; color: #777; width: 30px; text-align: center; flex: none; }
+  .chat-mock .bub {
+    padding: 8px 12px; border-radius: 12px; font-size: 14px; line-height: 1.6;
+    background: #2f2f2f; color: #ddd; max-width: 75%;
+  }
+  .chat-mock .row.r .bub { background: #3a5f3a; }
+  .chat-mock .blocked { font-size: 11px; color: #c33; margin-top: 6px; text-align: right; }
+  .skip-hint { position: absolute; bottom: 5vh; right: 4vw; color: #666; font-size: 13px; }
+  .dblclick {
+    display: flex; flex-direction: column; align-items: center; gap: 14px;
+  }
+  .xl-icon {
+    width: 84px; height: 84px; border-radius: 14px; background: #107c41;
+    color: #fff; font-size: 44px; font-weight: 700; display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 8px 30px #107c4180;
+    animation: pulse 1.6s ease-in-out infinite;
+  }
+  @keyframes pulse { 50% { transform: scale(1.07); } }
+  .frame-bar { display: flex; gap: 6px; position: absolute; bottom: 4vh; }
+  .frame-bar i { width: 8px; height: 8px; border-radius: 50%; background: #444; }
+  .frame-bar i.on { background: #ffd75e; }
+
+  /* ============ 场景B:桌面 + 聊天浮层(主场景) ============ */
+  #stage-desktop {
+    background:
+      radial-gradient(ellipse at 30% 20%, #1d3b53 0%, transparent 60%),
+      radial-gradient(ellipse at 75% 70%, #143024 0%, transparent 55%),
+      linear-gradient(160deg, #10202e, #0a1410);
+  }
+  .desk-icons { position: absolute; top: 48px; left: 18px; display: flex; flex-direction: column; gap: 18px; }
+  .desk-icon { width: 84px; text-align: center; color: #e8e8e8; font-size: 12px; cursor: default; }
+  .desk-icon .gl {
+    width: 52px; height: 52px; margin: 0 auto 6px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center; font-size: 28px;
+  }
+  .desk-icon small { display: block; color: #9ab; font-size: 11px; margin-top: 2px; }
+
+  /* 聊天浮层:Win10 轻量窗口 */
+  .chat-win {
+    position: absolute; right: 90px; bottom: 64px;
+    width: min(620px, 62vw); height: min(460px, 62vh);
+    background: #f3f3f3; border-radius: 8px; overflow: hidden;
+    box-shadow: 0 18px 60px rgba(0,0,0,.55);
+    display: flex; flex-direction: column;
+  }
+  .chat-titlebar {
+    display: flex; align-items: center; gap: 8px;
+    background: #fff; border-bottom: 1px solid #e2e2e2; padding: 8px 12px;
+  }
+  .chat-titlebar .name { font-size: 13px; font-weight: 700; color: #222; }
+  .chat-titlebar .tip { font-size: 11px; color: #999; }
+  .chat-titlebar .x { margin-left: auto; color: #999; font-size: 12px; }
+  .chat-body { flex: 1; display: flex; min-height: 0; }
+  .chat-list { width: 148px; background: #ececec; border-right: 1px solid #e0e0e0; padding: 8px 6px; overflow: auto; }
+  .chat-item {
+    display: flex; align-items: center; gap: 8px; padding: 8px; border-radius: 6px;
+    font-size: 12px; color: #333; cursor: default;
+  }
+  .chat-item.on { background: #d9ead9; }
+  .chat-item .av {
+    width: 30px; height: 30px; border-radius: 6px; flex: none;
+    display: flex; align-items: center; justify-content: center; font-size: 16px; color: #fff;
+  }
+  .chat-item .n { line-height: 1.2; }
+  .chat-item .n small { display: block; color: #999; font-size: 10px; }
+  .chat-item .red { margin-left: auto; background: #e5484d; color: #fff; font-size: 10px; border-radius: 9px; padding: 1px 6px; }
+  .chat-flow { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+  .chat-head { padding: 8px 14px; font-size: 12px; color: #555; border-bottom: 1px solid #eee; background: #fafafa; }
+  .chat-msgs { flex: 1; overflow: auto; padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+  .msg { display: flex; gap: 8px; align-items: flex-end; max-width: 86%; }
+  .msg.r { align-self: flex-end; flex-direction: row-reverse; }
+  .msg .av2 { width: 26px; height: 26px; border-radius: 6px; flex: none; display: flex; align-items: center; justify-content: center; font-size: 14px; color: #fff; }
+  .msg .bub2 { background: #fff; border: 1px solid #e5e5e5; padding: 8px 12px; border-radius: 4px 12px 12px 12px; font-size: 13px; line-height: 1.6; color: #222; }
+  .msg.r .bub2 { background: #95ec69; border-color: #95ec69; border-radius: 12px 4px 12px 12px; }
+  .msg .meta { font-size: 10px; color: #c33; margin-top: 3px; text-align: right; }
+  .typing { font-size: 11px; color: #999; padding: 0 14px 10px; }
+
+  /* Toast:右上角(独立审阅 + 场景B 内叠加) */
+  .toast {
+    position: absolute; top: 44px; right: 16px; width: 320px;
+    background: #fff; border-radius: 8px; box-shadow: 0 10px 34px rgba(0,0,0,.45);
+    padding: 12px 14px; display: flex; gap: 10px; cursor: pointer;
+    border-left: 4px solid #e5484d;
+  }
+  .toast .ic { width: 34px; height: 34px; border-radius: 6px; background: #3a5f3a; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 18px; flex: none; }
+  .toast .tx b { display: block; font-size: 13px; color: #111; }
+  .toast .tx span { font-size: 12px; color: #666; line-height: 1.5; display: block; }
+  .toast .tx small { font-size: 10px; color: #aaa; }
+
+  /* 任务栏 */
+  .taskbar {
+    position: absolute; left: 0; right: 0; bottom: 0; height: 48px;
+    background: #1f2733ee; backdrop-filter: blur(6px);
+    display: flex; align-items: center; padding: 0 10px; gap: 6px;
+    border-top: 1px solid #ffffff14;
+  }
+  .tb-start { width: 40px; height: 40px; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: #6cc4ff; font-size: 20px; }
+  .tb-start:hover, .tb-app.on { background: #ffffff1a; }
+  .tb-app {
+    position: relative; width: 44px; height: 40px; border-radius: 6px;
+    display: flex; align-items: center; justify-content: center; font-size: 22px; cursor: default;
+  }
+  .tb-app .dot { position: absolute; bottom: 2px; left: 50%; transform: translateX(-50%); width: 14px; height: 3px; border-radius: 2px; background: #6cc4ff; }
+  .tb-app .red { position: absolute; top: 3px; right: 3px; background: #e5484d; color: #fff; font-size: 9px; border-radius: 8px; padding: 0 4px; }
+  .tb-clock {
+    margin-left: auto; text-align: right; color: #dfe6ee; font-size: 12px; line-height: 1.3;
+    font-variant-numeric: tabular-nums; padding: 4px 8px; border-radius: 6px;
+  }
+  .tb-clock b { font-size: 13px; }
+  .tb-clock small { color: #8fa0b3; display: block; font-size: 10px; }
+
+  /* Excel 全屏示意(场景D) */
+  #stage-excel { background: #217346; }
+  .xl-fake {
+    position: absolute; inset: 0 0 48px 0; background: #fff; margin: 0;
+    display: flex; flex-direction: column;
+  }
+  .xl-title { background: #217346; color: #fff; font-size: 12px; padding: 6px 12px; }
+  .xl-ribbon { background: #f3f2f1; border-bottom: 1px solid #ddd; padding: 8px 12px; font-size: 11px; color: #666; }
+  .xl-grid { flex: 1; background:
+    repeating-linear-gradient(0deg, transparent 0 27px, #e5e5e5 27px 28px),
+    repeating-linear-gradient(90deg, transparent 0 95px, #e5e5e5 95px 96px); }
+  .xl-status { background: #217346; color: #fff; font-size: 11px; padding: 4px 12px; display: flex; justify-content: space-between; }
+  .shell-note {
+    position: absolute; left: 50%; bottom: 58px; transform: translateX(-50%);
+    color: #fff9; font-size: 12px; background: #0008; padding: 6px 14px; border-radius: 14px;
+  }
+</style>
+</head>
+<body>
+
+<!-- 审阅工具条(原型专用,非交付物) -->
+<div class="proto-bar">
+  <b>ISSUE #18 · 低保真原型</b>
+  <button data-s="stage-intro" class="on">A 开场动画壳</button>
+  <button data-s="stage-desktop">B 桌面 + 聊天浮层</button>
+  <button data-s="stage-desktop" data-toast="1">C Toast 态</button>
+  <button data-s="stage-excel">D Excel 全屏(壳收起)</button>
+  <span class="proto-note">全部为 CSS 拟真 · 验收 = 用户过目点头,定稿后贴回票作视觉基线</span>
+</div>
+
+<!-- A 开场回忆杀:3 帧骨架 + 转场示意 -->
+<div class="stage on" id="stage-intro">
+  <div class="frame">
+    <div class="t">2026-10-24 周五 16:53 · 工位</div>
+    <div class="big">「这表你先顶着。<br>宏我改不动,也不想改。」</div>
+    <div class="chat-mock">
+      <div class="row r"><span class="who">我</span><span class="bub">王哥,连生产库的这个 VBA……出事谁背?</span></div>
+      <div class="row"><span class="who">王</span><span class="bub">已拉黑</span></div>
+      <div class="blocked">消息已发出,但被对方拒收了。</div>
+    </div>
+    <div class="sub">—— 你被留在了唯一真数据源面前 ——</div>
+  </div>
+  <div class="frame-bar"><i class="on"></i><i></i><i></i><i></i></div>
+  <div class="skip-hint">点击任意处跳过 · ≤25s · 首次进站播放一次</div>
+</div>
+
+<!-- 转场帧示意(帧4):双击 Excel 打开 -->
+<!-- 帧说明:黑场淡出 → 桌面壁纸浮现 → Excel 图标脉冲 →「双击」白闪 → 进 ExcelShell(既有场景) -->
+
+<!-- B/C 桌面 + 聊天浮层 + Toast -->
+<div class="stage" id="stage-desktop">
+  <div class="desk-icons">
+    <div class="desk-icon"><div class="gl" style="background:#107c41">X</div>核心业务<br/>最终版_打死勿动<small>.xlsx</small></div>
+    <div class="desk-icon"><div class="gl" style="background:#3a5f3a">💬</div>企业微信</div>
+    <div class="desk-icon"><div class="gl" style="background:#555">🗑️</div>回收站</div>
+  </div>
+
+  <!-- Toast(C 场景点亮) -->
+  <div class="toast" id="toast" style="display:none">
+    <div class="ic">B</div>
+    <div class="tx">
+      <b>甲方老总</b>
+      <span>系统又挂了?尾款别想!立刻!马上!</span>
+      <small>刚刚 · 点击打开聊天</small>
+    </div>
+  </div>
+
+  <!-- 聊天浮层 -->
+  <div class="chat-win">
+    <div class="chat-titlebar">
+      <span class="name">企业微信</span>
+      <span class="tip">轻量窗口 · Excel 全屏时收起为任务栏图标 · 不遮挡表格</span>
+      <span class="x">—  □  ✕</span>
+    </div>
+    <div class="chat-body">
+      <div class="chat-list">
+        <div class="chat-item on"><span class="av" style="background:#c0392b">B</span><span class="n">甲方老总<small>张总(金主爸爸)</small></span><span class="red">3</span></div>
+        <div class="chat-item"><span class="av" style="background:#8e44ad">H</span><span class="n">HR 小陈<small>人力·暖心补刀</small></span><span class="red">1</span></div>
+        <div class="chat-item"><span class="av" style="background:#555">W</span><span class="n">老王<small>已拉黑 · 消息未送达</small></span></div>
+      </div>
+      <div class="chat-flow">
+        <div class="chat-head">甲方老总 · 张总(金主爸爸)</div>
+        <div class="chat-msgs">
+          <div class="msg"><span class="av2" style="background:#c0392b">B</span><span class="bub2">系统监控怎么又红了?!我刚在董事会夸完你们!</span></div>
+          <div class="msg"><span class="av2" style="background:#c0392b">B</span><span class="bub2">17:00 前搞不定,尾款一笔勾销!</span></div>
+          <div class="msg r"><span class="av2" style="background:#3a5f3a">我</span><span class="bub2">(已读)</span></div>
+          <div class="msg"><span class="av2" style="background:#c0392b">B</span><span class="bub2">别已读不回!我在说重点!</span><span class="meta" style="color:#999">→ 打断感由 pacing 票定档</span></div>
+        </div>
+        <div class="typing">对方正在输入…</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 任务栏(含倒计时时钟) -->
+  <div class="taskbar">
+    <div class="tb-start">⊞</div>
+    <div class="tb-app on"><span style="color:#fff">X</span><span class="dot"></span></div>
+    <div class="tb-app">💬<span class="red">4</span></div>
+    <div class="tb-app">📁</div>
+    <div class="tb-clock" id="clock"><b>16:56:02</b><small>2026/10/24 周五</small></div>
+  </div>
+</div>
+
+<!-- D Excel 全屏(桌面壳收起为任务栏) -->
+<div class="stage" id="stage-excel">
+  <div class="xl-fake">
+    <div class="xl-title">核心业务_最终版_打死勿动.xlsx — Excel(未激活的产品)</div>
+    <div class="xl-ribbon">文件 开始 插入 页面布局 公式 数据 审阅 视图 帮助 …(既有 ExcelShell 原样保留)</div>
+    <div class="xl-grid"></div>
+    <div class="xl-status"><span>求和: ≠1024</span><span>16:56:02</span><span>就绪</span></div>
+  </div>
+  <div class="taskbar" style="z-index:5">
+    <div class="tb-start">⊞</div>
+    <div class="tb-app on"><span style="color:#fff">X</span><span class="dot"></span></div>
+    <div class="tb-app">💬</div>
+    <div class="tb-clock" id="clock2"><b>16:56:02</b><small>与引信同步</small></div>
+  </div>
+  <div class="shell-note">Excel 永远独占全屏 · 聊天收起为任务栏图标(红点=未读) · 轻量窗口,无拖拽/遮挡/聚焦</div>
+</div>
+
+<script>
+  // 审阅场景切换
+  document.querySelectorAll('.proto-bar button').forEach((b) => {
+    b.addEventListener('click', () => {
+      document.querySelectorAll('.proto-bar button').forEach((x) => x.classList.remove('on'));
+      b.classList.add('on');
+      document.querySelectorAll('.stage').forEach((s) => s.classList.remove('on'));
+      document.getElementById(b.dataset.s).classList.add('on');
+      document.getElementById('toast').style.display = b.dataset.toast ? 'flex' : 'none';
+    });
+  });
+  // 时钟演示:16:56:00 起实时走(与 240s 引信同源),双钟同走
+  const t0 = Date.now();
+  const fmt = (s) => {
+    const m = Math.floor(s / 60), ss = Math.floor(s % 60);
+    return `16:56:${String(m * 0 + ss).padStart(2, '0')}`.replace(/^16:56:(\d\d)$/, (x) => x) ;
+  };
+  setInterval(() => {
+    const el = Math.floor((Date.now() - t0) / 1000);
+    const mm = 56 + Math.floor(el / 60), ss = el % 60;
+    const txt = `16:${String(mm).padStart(2, '0')}:${String(ss).padStart(2, '0')}`;
+    for (const id of ['clock', 'clock2']) {
+      const n = document.getElementById(id);
+      if (n) n.querySelector('b').textContent = txt;
+    }
+  }, 1000);
+</script>
+</body>
+</html>

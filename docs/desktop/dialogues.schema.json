@@ -1,0 +1,106 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "legacy-code-defuser/dialogues.schema.json",
+  "title": "屎山拆弹专家·桌面化对话文案契约",
+  "description": "文案生产唯一输入。配套说明见 docs/desktop/dialogue-contract.md。产出文件 top-level 必须为 { version, messages }。",
+  "type": "object",
+  "required": ["version", "messages"],
+  "properties": {
+    "version": { "const": "1.0.0" },
+    "messages": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/message" }
+    }
+  },
+  "$defs": {
+    "effects": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "sound": { "enum": ["ding", "urgent", "none"], "default": "none" },
+        "badge": { "type": "boolean", "default": false },
+        "pin": { "type": "boolean", "default": false }
+      }
+    },
+    "trigger": {
+      "type": "object",
+      "required": ["type"],
+      "properties": {
+        "type": { "enum": ["event", "time", "ending", "static"] },
+        "event": {
+          "enum": [
+            "first_manual_switch",
+            "first_edge_a",
+            "row5_stuck",
+            "row5_stuck_repeat",
+            "fuse_60s",
+            "fuse_30s",
+            "first_defuse",
+            "skill_format_brush",
+            "skill_freeze_pane",
+            "row8_trap"
+          ]
+        },
+        "atSec": { "type": "number", "minimum": 0, "maximum": 240 },
+        "ending": { "enum": ["win", "fuse", "row1", "row2", "row3", "row4", "row5"] },
+        "once": { "type": "boolean", "default": true }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "type": { "const": "event" } } },
+          "then": { "required": ["event"] }
+        },
+        {
+          "if": { "properties": { "type": { "const": "time" } } },
+          "then": { "required": ["atSec"] }
+        },
+        {
+          "if": { "properties": { "type": { "const": "ending" } } },
+          "then": { "required": ["ending"] }
+        }
+      ]
+    },
+    "message": {
+      "type": "object",
+      "required": ["id", "category", "contact", "text", "trigger", "orderInGroup"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^(sb|ep|ed_(win|fuse|row[1-5])|egg)_[a-z0-9_]+$",
+          "description": "全局唯一:分镜 sb_* / 局内推送 ep_* / 结局 ed_<结局>_* / 彩蛋 egg_*"
+        },
+        "category": { "enum": ["storyboard", "push", "ending", "tooltip"] },
+        "contact": { "enum": ["boss", "hr", "wang", "system", "player"] },
+        "text": { "type": "string", "maxLength": 80, "minLength": 1 },
+        "trigger": { "$ref": "#/$defs/trigger" },
+        "orderInGroup": { "type": "integer", "minimum": 1 },
+        "interruptible": { "type": "boolean", "description": "push 类必填" },
+        "effects": { "$ref": "#/$defs/effects" }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "category": { "const": "push" } } },
+          "then": { "required": ["interruptible"] }
+        },
+        {
+          "if": { "properties": { "category": { "const": "ending" } } },
+          "then": { "properties": { "trigger": { "properties": { "type": { "const": "ending" } } } } }
+        },
+        {
+          "if": { "properties": { "category": { "const": "storyboard" } } },
+          "then": {
+            "properties": {
+              "contact": { "enum": ["wang", "player", "system"] }
+            }
+          }
+        },
+        {
+          "if": { "properties": { "contact": { "const": "player" } } },
+          "then": { "properties": { "category": { "const": "storyboard" } }, "required": ["orderInGroup"] }
+        }
+      ]
+    }
+  }
+}
