@@ -1,4 +1,4 @@
-import { Fragment } from 'react'
+import { Fragment, useRef, useState } from 'react'
 import type { CSSProperties } from 'react'
 import { GRID_ROWS } from '../../data/gridRows'
 import { COL_COUNT, colLetter } from '../../lib/grid'
@@ -15,6 +15,22 @@ export function Grid() {
   const selectRow = useGameStore((s) => s.selectRow)
   const modules = useGameStore((s) => s.modules)
   const locks = useGameStore((s) => s.locks)
+  const applyPenalty = useGameStore((s) => s.applyPenalty)
+  const formatBrush = useGameStore((s) => s.formatBrush)
+  const greenWashRow = useGameStore((s) => s.greenWashRow)
+  const frozenRowsUntil = useGameStore((s) => s.frozenRowsUntil)
+
+  // Row8 禁操行：点击全场 -30s，1s 防抖 + 短暂红闪
+  const [row8Flash, setRow8Flash] = useState(false)
+  const lastRow8ClickAt = useRef(0)
+  const handleRow8Click = () => {
+    const now = Date.now()
+    if (now - lastRow8ClickAt.current < 1000) return
+    lastRow8ClickAt.current = now
+    applyPenalty({ all: true, sec: 30, source: 'row8' })
+    setRow8Flash(true)
+    window.setTimeout(() => setRow8Flash(false), 500)
+  }
 
   const rowSelected = selectedCol === null
   // Row1 的 A 列是合并单元格：选中 A1 时选中框横跨合并宽度
@@ -55,10 +71,16 @@ export function Grid() {
         {GRID_ROWS.map((r) => {
           const isSelRow = selectedRow === r.row
           const locked = isLocked(r.row)
+          // 格式刷假绿（skillSlice）：效果期该行数据条强制绿（CSS 覆盖，引擎照跑）
+          const greenWashed = greenWashRow === r.row && formatBrush.activeUntil > Date.now()
+          // 冻结窗格（engineSlice）：行号头 ❄ + 浅蓝
+          const frozen = (frozenRowsUntil[r.row] ?? 0) > Date.now()
+          // Row8 禁操行：任何单元格点击 → 全场 -30s
+          const isRow8 = r.kind === 'decor' && r.text.includes('🐉')
           const cells: JSX.Element[] = []
           let col = 1
           while (col <= COL_COUNT) {
-            const cls = `cell${r.kind === 'dim' ? ' dim' : ''}${locked ? ' locked' : ''}`
+            const cls = `cell${r.kind === 'dim' ? ' dim' : ''}${locked ? ' locked' : ''}${greenWashed ? ' green-wash' : ''}${isRow8 && row8Flash ? ' row8-flash' : ''}`
             if (col === 5) {
               // E 列：模块行接引擎倒计时数据条；非模块行不渲染
               const mod = r.kind === 'module' ? modules[r.row - 1] : undefined
@@ -86,7 +108,11 @@ export function Grid() {
               continue
             }
             cells.push(
-              <div key={col} className={cls} onClick={() => selectCell(r.row, col)}>
+              <div
+                key={col}
+                className={cls}
+                onClick={isRow8 ? handleRow8Click : () => selectCell(r.row, col)}
+              >
                 <span>{col === 1 ? r.text : ''}</span>
                 {col === 1 && r.comment ? <Comment text={r.comment} /> : null}
               </div>,
@@ -96,10 +122,10 @@ export function Grid() {
           return (
             <Fragment key={r.row}>
               <div
-                className={`rh${r.kind === 'dim' ? ' dim' : ''}${isSelRow ? ' active' : ''}${locked ? ' locked' : ''}`}
+                className={`rh${r.kind === 'dim' ? ' dim' : ''}${isSelRow ? ' active' : ''}${locked ? ' locked' : ''}${greenWashed ? ' green-wash' : ''}${frozen ? ' frozen' : ''}`}
                 onClick={() => selectRow(r.row)}
               >
-                {r.row}
+                {frozen ? `${r.row} ❄` : r.row}
               </div>
               {cells}
             </Fragment>

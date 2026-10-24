@@ -1,0 +1,70 @@
+/* ===== Ribbon 技能 + 假绿/冻结/Row8 视觉（issue #12，独立于 excelShell.css 防冲突） ===== */
+
+/* ---- Ribbon 技能按钮状态 ---- */
+/* CD 中：灰显（按钮 disabled，仅剩样式态） */
+.ribbon-btn.skill-cd {
+  opacity: 0.55;
+  color: #8a8886;
+  cursor: default;
+}
+/* 效果期间：高亮（假绿期间按钮带条件格式绿描边） */
+.ribbon-btn.skill-active {
+  background: var(--xlsx-ok-bg);
+  border-color: var(--xlsx-selected);
+}
+
+/* ---- 格式刷假绿：数据条三档（ok/warn/err）强制条件格式绿，倒计时照跑 ---- */
+.green-wash .data-bar[data-tier] {
+  --bar-bg: var(--xlsx-ok-bg);
+  --bar-fg: var(--xlsx-ok-fg);
+}
+/* 假绿期间停用黄档闪烁与红档抖动（红行"刷干净"的掩耳盗铃感） */
+.green-wash .data-bar[data-tier] .data-bar-fill {
+  animation: none;
+}
+.green-wash .data-bar[data-urgent] {
+  animation: none;
+}
+
+/* ---- 冻结窗格：行号头浅蓝 + ❄ ---- */
+.rh.frozen {
+  background: #dceefb;
+  color: #1f6f9f;
+}
+
+/* ---- Row8 禁操行：点击后短暂红闪 ---- */
+@keyframes row8-red-flash {
+  0%,
+  100% {
+    background-color: #fff;
+  }
+  40% {
+    background-color: #f6b9b9;
+  }
+}
+.cell.row8-flash {
+  animation: row8-red-flash 0.45s ease-out 1;
+}
+
+/* ---- Row7 废标签：点击弹米黄批注泡（锚定标签上方） ---- */
+.sheet-tab.dead {
+  position: relative;
+}
+.dead-tab-pop {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  width: 200px;
+  padding: 6px 9px;
+  background: var(--xlsx-comment);
+  border: 1px solid #a8a8a8;
+  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  color: #1a1a1a;
+  font-size: 12px;
+  line-height: 1.7;
+  white-space: normal;
+  text-align: left;
+  cursor: default;
+  z-index: 30;
+}
