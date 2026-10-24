@@ -6,6 +6,7 @@ import { createPenaltySlice } from './penaltySlice'
 import { createRow4Slice } from './row4Slice'
 import { createRow2Slice } from './row2Slice'
 import { createRow5Slice } from './row5Slice'
+import { createRow3Slice } from './row3Slice'
 import type { SelectionState } from './selectionSlice'
 import type { SheetState } from './sheetSlice'
 import type { EngineState } from './engineSlice'
@@ -13,11 +14,11 @@ import type { PenaltyState } from './penaltySlice'
 import type { Row4State } from './row4Slice'
 import type { Row2State } from './row2Slice'
 import type { Row5State } from './row5Slice'
+import type { Row3State } from './row3Slice'
 
 /**
  * 全局游戏状态根类型。
- * 后续票按 slice 扩展：模块判定（modulesSlice）等，
- * 在 create<RootState>() 中依次展开即可。
+ * 后续票按 slice 扩展，在 create<RootState>() 中依次展开即可。
  */
 export type RootState = SelectionState &
   SheetState &
@@ -25,7 +26,8 @@ export type RootState = SelectionState &
   PenaltyState &
   Row4State &
   Row2State &
-  Row5State
+  Row5State &
+  Row3State
 
 export const useGameStore = create<RootState>()((...a) => ({
   ...createSelectionSlice(...a),
@@ -35,4 +37,5 @@ export const useGameStore = create<RootState>()((...a) => ({
   ...createRow4Slice(...a),
   ...createRow2Slice(...a),
   ...createRow5Slice(...a),
+  ...createRow3Slice(...a),
 }))

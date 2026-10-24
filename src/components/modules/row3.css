@@ -1,0 +1,137 @@
+/* ===== Row3 乱码考古（issue #11）：格式下拉 / D 列宽拖拽 / D3 显形 / F3 口令输入 ===== */
+
+/* ---- 公式栏行挂载锚点：FormatSelect 覆盖在该行最右端（不改 FormulaBar 内部） ---- */
+.formula-bar-anchor {
+  position: relative;
+  flex: none;
+}
+.format-select {
+  position: absolute;
+  right: 6px;
+  top: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  z-index: 30;
+}
+.format-select-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 20px;
+  padding: 0 8px;
+  font-size: 12px;
+  color: #333;
+  background: #fff;
+  border: 1px solid #d8d6d3;
+  border-radius: 2px;
+  cursor: pointer;
+}
+.format-select-btn:hover {
+  background: var(--xlsx-toolbar);
+}
+.format-select-caret {
+  font-size: 9px;
+  color: #666;
+}
+.format-select-menu {
+  position: absolute;
+  right: 0;
+  top: 100%;
+  min-width: 96px;
+  padding: 2px;
+  background: #fff;
+  border: 1px solid #d8d6d3;
+  box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.25);
+  z-index: 40;
+}
+.format-select-item {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 4px 8px;
+  font-size: 12px;
+  color: #333;
+  text-align: left;
+  background: #fff;
+  border: none;
+  cursor: pointer;
+}
+.format-select-item:hover {
+  background: var(--xlsx-toolbar);
+}
+.format-select-item.checked {
+  color: var(--xlsx-selected);
+  font-weight: 600;
+}
+.format-select-check {
+  display: inline-block;
+  width: 14px;
+}
+
+/* ---- D/E 列分界拖拽热区（绝对定位竖条，拖拽改 D 列宽） ---- */
+.d-col-resizer {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 6px;
+  z-index: 6;
+  cursor: col-resize;
+  touch-action: none;
+}
+.d-col-resizer:hover,
+.d-col-resizer.dragging {
+  background: rgba(16, 124, 65, 0.22);
+}
+
+/* ---- D3：#### → 序列值 → 短日期 显形 ---- */
+.d3-value {
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---- F3 口令输入框（stage formatted 后出现） ---- */
+.f3-passcode {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+}
+.f3-input {
+  width: 100%;
+  height: 18px;
+  padding: 0 4px;
+  font: inherit;
+  font-size: 12px;
+  color: #111;
+  background: #fff;
+  border: 1px solid var(--xlsx-selected);
+  outline: none;
+}
+.f3-input:focus {
+  box-shadow: 0 0 0 1px var(--xlsx-selected);
+}
+.f3-input:disabled {
+  background: var(--xlsx-toolbar);
+  border-color: #e0e0e0;
+}
+/* 已拆：只读回显口令，绿底绿字 */
+.f3-input:read-only {
+  background: var(--xlsx-ok-bg);
+  border-color: #e0e0e0;
+  color: var(--xlsx-ok-fg);
+}
+/* 填错锁：输入框左侧悬浮 #VALUE! 红字，输入区右移避让 */
+.f3-error {
+  position: absolute;
+  left: 3px;
+  z-index: 2;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--xlsx-err-fg);
+  pointer-events: none;
+}
+.f3-passcode.wrong .f3-input {
+  padding-left: 56px;
+  background: var(--xlsx-err-bg);
+}
