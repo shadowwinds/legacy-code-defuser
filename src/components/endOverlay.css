@@ -1,0 +1,54 @@
+/* ===== 终局全屏遮罩（issue #4 简版） ===== */
+
+.end-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 40px;
+  background: rgba(20, 20, 20, 0.82);
+  animation: end-overlay-in 0.25s ease-out;
+}
+
+@keyframes end-overlay-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.end-overlay .end-text {
+  max-width: 80vw;
+  font-size: 42px;
+  font-weight: 700;
+  text-align: center;
+  color: #fff;
+  line-height: 1.4;
+}
+
+.end-overlay.exploded .end-text {
+  color: var(--xlsx-err-bg);
+}
+
+.end-overlay.won .end-text {
+  color: var(--xlsx-ok-bg);
+}
+
+.end-overlay .end-restart {
+  padding: 10px 36px;
+  font-size: 16px;
+  color: #333;
+  background: #fff;
+  border: 1px solid #fff;
+  cursor: pointer;
+}
+
+.end-overlay .end-restart:hover {
+  color: #fff;
+  background: transparent;
+}

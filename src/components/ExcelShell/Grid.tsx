@@ -3,6 +3,7 @@ import type { CSSProperties } from 'react'
 import { GRID_ROWS } from '../../data/gridRows'
 import { COL_COUNT, colLetter } from '../../lib/grid'
 import { useGameStore } from '../../store'
+import { DataBar } from './DataBar'
 
 /** 8 行网格：行号 1–8 + 列标 A–H，E 列为数据条列；点击单元格/行号选中 */
 export function Grid() {
@@ -10,6 +11,7 @@ export function Grid() {
   const selectedCol = useGameStore((s) => s.selectedCol)
   const selectCell = useGameStore((s) => s.selectCell)
   const selectRow = useGameStore((s) => s.selectRow)
+  const modules = useGameStore((s) => s.modules)
 
   const rowSelected = selectedCol === null
   // Row1 的 A 列是合并单元格：选中 A1 时选中框横跨合并宽度
@@ -51,12 +53,17 @@ export function Grid() {
           while (col <= COL_COUNT) {
             const cls = `cell${r.kind === 'dim' ? ' dim' : ''}`
             if (col === 5) {
-              // E 列：数据条容器（本票静态）
+              // E 列：模块行接引擎倒计时数据条；装饰行保留静态占位
+              const mod = r.kind === 'module' ? modules[r.row - 1] : undefined
               cells.push(
                 <div key={col} className={cls}>
-                  <div className="bar-track">
-                    <div className="bar-fill" style={{ width: `${r.barWidth ?? 0}%` }} />
-                  </div>
+                  {mod ? (
+                    <DataBar remainingSec={mod.remaining} initialSec={mod.initial} />
+                  ) : (
+                    <div className="bar-track">
+                      <div className="bar-fill" style={{ width: `${r.barWidth ?? 0}%` }} />
+                    </div>
+                  )}
                 </div>,
               )
               col += 1
