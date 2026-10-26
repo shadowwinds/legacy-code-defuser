@@ -1,0 +1,194 @@
+.intro-root {
+  position: fixed;
+  inset: 0;
+  z-index: 2500;
+  background: #000;
+  color: #ddd;
+  user-select: none;
+  cursor: pointer;
+}
+
+.intro-frame {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  padding: 0 10vw;
+  text-align: center;
+  animation: intro-fade-in 300ms both;
+}
+
+.intro-frame-out {
+  animation: intro-fade-out 300ms both;
+}
+
+.intro-t {
+  font-size: 15px;
+  color: #888;
+  letter-spacing: 2px;
+}
+
+.intro-sub {
+  font-size: 14px;
+  color: #aaa;
+  line-height: 1.8;
+}
+
+.intro-big {
+  font-size: 26px;
+  font-weight: 700;
+  color: #eee;
+  line-height: 1.7;
+  animation: intro-fade-in 300ms both;
+}
+
+.intro-chat-mock {
+  width: min(420px, 80vw);
+  padding: 14px;
+  border: 1px solid #444;
+  border-radius: 10px;
+  background: #222;
+}
+
+.intro-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  margin: 8px 0;
+  text-align: left;
+  animation: intro-fade-in 300ms both;
+}
+
+.intro-row-player {
+  flex-direction: row-reverse;
+}
+
+.intro-who {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 30px;
+  height: 30px;
+  border-radius: 6px;
+  background: #555;
+  color: #ddd;
+  font-size: 11px;
+}
+
+.intro-bubble {
+  max-width: 75%;
+  padding: 8px 12px;
+  border-radius: 12px;
+  background: #2f2f2f;
+  color: #ddd;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.intro-row-player .intro-bubble {
+  background: #3a5f3a;
+}
+
+.intro-system,
+.intro-blocked {
+  color: #888;
+  font-size: 11px;
+  animation: intro-fade-in 300ms both;
+}
+
+.intro-system {
+  margin: 8px 0;
+}
+
+.intro-blocked {
+  margin-top: -2px;
+  padding-right: 38px;
+  color: #c33;
+  text-align: right;
+}
+
+.intro-xl-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 84px;
+  height: 84px;
+  border: 0;
+  border-radius: 14px;
+  background: #107c41;
+  color: #fff;
+  font-size: 44px;
+  font-weight: 700;
+  box-shadow: 0 8px 30px #107c4180;
+  cursor: pointer;
+  animation: intro-pulse 1.6s ease-in-out infinite;
+}
+
+.intro-xl-icon:focus-visible {
+  outline: 2px solid #ffd75e;
+  outline-offset: 6px;
+}
+
+.intro-frame-bar {
+  position: absolute;
+  bottom: 4vh;
+  left: 50%;
+  display: flex;
+  gap: 6px;
+  transform: translateX(-50%);
+}
+
+.intro-frame-bar i {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #444;
+}
+
+.intro-frame-bar .intro-dot-on {
+  background: #ffd75e;
+}
+
+.intro-skip-hint {
+  position: absolute;
+  right: 4vw;
+  bottom: 5vh;
+  color: #666;
+  font-size: 13px;
+}
+
+.intro-flash {
+  position: fixed;
+  inset: 0;
+  z-index: 3000;
+  background: #fff;
+  animation-timing-function: linear;
+  animation-fill-mode: both;
+}
+
+.intro-flash-covering {
+  animation-name: intro-fade-in;
+}
+
+.intro-flash-revealing {
+  animation-name: intro-fade-out;
+}
+
+@keyframes intro-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes intro-fade-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+@keyframes intro-pulse {
+  50% { transform: scale(1.07); }
+}
