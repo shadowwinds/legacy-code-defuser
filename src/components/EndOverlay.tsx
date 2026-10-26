@@ -1,4 +1,6 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { useDesktopStore } from '../desktop/desktopStore'
+import { ENDING_OVERLAY_DELAY_MS } from '../desktop/tiers'
 import { useGameStore } from '../store'
 import './endOverlay.css'
 
@@ -7,17 +9,30 @@ import './endOverlay.css'
  * - won「Microsoft Excel · 是否保存修改?」→【不保存，直接跑路!】重开（保存键弹吐槽）；
  * - exploded「严重错误」→ endReason 文案 +【重新开始】。
  * 大结局文案居对话框上方，保留「XX 当场爆炸。」的冲击力。
+ * T6 时序：status 离开 playing 后等 ENDING_OVERLAY_DELAY_MS 再淡入（先结局对话后结算）；
+ * 结局视图可见时整体右移避让（with-ending-chat）。
  */
 export function EndOverlay() {
   const status = useGameStore((s) => s.status)
   const endReason = useGameStore((s) => s.endReason)
+  const endingChatVisible = useDesktopStore((s) => s.endingView !== null)
+  const [delayed, setDelayed] = useState(false)
   const [saveClicked, setSaveClicked] = useState(false)
 
-  if (status === 'playing') return null
+  useEffect(() => {
+    if (status === 'playing') {
+      setDelayed(false)
+      return
+    }
+    const id = window.setTimeout(() => setDelayed(true), ENDING_OVERLAY_DELAY_MS)
+    return () => window.clearTimeout(id)
+  }, [status])
+
+  if (status === 'playing' || !delayed) return null
   const won = status === 'won'
 
   return (
-    <div className={`end-overlay ${status}`}>
+    <div className={`end-overlay ${status}${endingChatVisible ? ' with-ending-chat' : ''}`}>
       <div className="end-text">{endReason ?? ''}</div>
       <div className={`win98-dialog${won ? ' won' : ' exploded'}`} role="dialog" aria-label={won ? '是否保存修改' : '严重错误'}>
         <div className="win98-titlebar">

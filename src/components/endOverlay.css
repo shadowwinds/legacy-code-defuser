@@ -13,6 +13,11 @@
   animation: end-overlay-in 0.25s ease-out;
 }
 
+/* 结局视图（z 1001）可见时内容整体右移避让，不与左侧对话流重叠（T6） */
+.end-overlay.with-ending-chat {
+  padding-left: 380px;
+}
+
 @keyframes end-overlay-in {
   from {
     opacity: 0;
@@ -29,6 +34,10 @@
   text-align: center;
   color: #fff;
   line-height: 1.4;
+}
+
+.end-overlay.with-ending-chat .end-text {
+  max-width: calc(100vw - 440px);
 }
 
 .end-overlay.exploded .end-text {
