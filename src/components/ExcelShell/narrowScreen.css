@@ -3,7 +3,7 @@
 .narrow-screen {
   position: fixed;
   inset: 0;
-  z-index: 1000;
+  z-index: 3500; /* T8：高于开场动画(2500)与白闪(3000)，窄屏下全程兜底 */
   display: flex;
   align-items: center;
   justify-content: center;

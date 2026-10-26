@@ -1,5 +1,6 @@
 import { initTickEngine } from './audio/tick'
 import { ExcelShell } from './components/ExcelShell/ExcelShell'
+import { NarrowScreenNotice } from './components/ExcelShell/NarrowScreenNotice'
 import { EndOverlay } from './components/EndOverlay'
 import { ChatOverlay } from './components/desktop/ChatOverlay'
 import { DesktopShell } from './components/desktop/DesktopShell'
@@ -21,14 +22,18 @@ export default function App() {
 
   // 层级（v1.1 桌面化，挂载点固定；各票只改自己的组件文件，不改本文件）
   return (
-    <IntroGate>
-      <DesktopShell>
-        <ExcelShell />
-      </DesktopShell>
-      <ChatOverlay />
-      <ToastLayer />
-      <EndingChat />
-      <EndOverlay />
-    </IntroGate>
+    <>
+      <IntroGate>
+        <DesktopShell>
+          <ExcelShell />
+        </DesktopShell>
+        <ChatOverlay />
+        <ToastLayer />
+        <EndingChat />
+        <EndOverlay />
+      </IntroGate>
+      {/* 窄屏降级（T8）：放 IntroGate 外才能盖住开场动画与白闪，z 3500 见 narrowScreen.css */}
+      <NarrowScreenNotice />
+    </>
   )
 }

@@ -3,7 +3,7 @@
 .sys-broadcast {
   position: fixed;
   right: 16px;
-  bottom: 56px;
+  bottom: 106px; /* T8：任务栏 48 + Sheet 标签 26 + 状态栏 24 + 8，气球不再压 Excel 底边两栏 */
   z-index: 500;
   pointer-events: none;
 }

@@ -99,7 +99,8 @@ export function IntroGate({ children }: { children: ReactNode }) {
               </>
             )}
           </div>
-          <div className="intro-frame-bar" aria-label={`开场第 ${step.frame + 1} 帧，共 4 帧`}>
+          {/* T8 a11y：纯装饰进度点，div 上 aria-label 违反 ARIA 规范（Lighthouse aria-prohibited-attr） */}
+          <div className="intro-frame-bar" aria-hidden="true">
             {[0, 1, 2, 3].map((frame) => <i key={frame} className={frame === step.frame ? 'intro-dot-on' : ''} />)}
           </div>
           <p className="intro-skip-hint">{step.frame < 3 ? '点击任意处跳过' : '双击图标打开'}</p>

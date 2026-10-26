@@ -162,7 +162,7 @@
   position: absolute;
   right: 4vw;
   bottom: 5vh;
-  color: #666;
+  color: #a0a0a0; /* T8 a11y：#666 在黑底上对比度不足 4.5:1（Lighthouse） */
   font-size: 13px;
 }
 

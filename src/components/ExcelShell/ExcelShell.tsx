@@ -6,7 +6,6 @@ import '../modules/row3.css'
 import { FormulaBar } from './FormulaBar'
 import { Grid } from './Grid'
 import { ManualSheet } from './ManualSheet'
-import { NarrowScreenNotice } from './NarrowScreenNotice'
 import { Ribbon } from './Ribbon'
 import { SheetTabs } from './SheetTabs'
 import { StatusBar } from './StatusBar'
@@ -60,7 +59,6 @@ export function ExcelShell() {
       <SheetTabs />
       <StatusBar />
       <SystemBroadcast />
-      <NarrowScreenNotice />
     </div>
   )
 }
