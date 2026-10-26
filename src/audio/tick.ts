@@ -1,4 +1,6 @@
 import { useGameStore } from '../store'
+import { MESSAGE_SOUND_EVENT } from '../desktop/tiers'
+import type { MessageSound, MessageSoundDetail } from '../desktop/tiers'
 
 /**
  * 全局引信嘀嗒声引擎（issue #13）——纯 Web Audio API 合成，零音频文件。
@@ -160,6 +162,73 @@ function playError(c: AudioContext): void {
   })
 }
 
+// ---- 消息提示音（#36）：B 档 ding / A 档 urgent，峰值 ≤0.25、总长 ≤400ms，不压过嘀嗒 ----
+
+/** B 档「叮—咚」：正弦双音下行（E6→B5），交叠 20ms 保衔接 */
+function playDing(c: AudioContext): void {
+  const t = c.currentTime
+  const notes: Array<{ f: number; at: number; dur: number }> = [
+    { f: 1318.5, at: 0, dur: 0.12 },
+    { f: 987.8, at: 0.1, dur: 0.22 },
+  ]
+  for (const { f, at, dur } of notes) {
+    const osc = c.createOscillator()
+    osc.type = 'sine'
+    osc.frequency.value = f
+    const g = c.createGain()
+    const start = t + at
+    g.gain.setValueAtTime(0.001, start)
+    g.gain.exponentialRampToValueAtTime(0.22, start + 0.01)
+    g.gain.exponentialRampToValueAtTime(0.001, start + dur)
+    osc.connect(g).connect(c.destination)
+    osc.start(start)
+    osc.stop(start + dur + 0.02)
+  }
+}
+
+/** A 档三连警示：三角波 880/880/1046.5Hz，第三声抬升制造紧迫感 */
+function playUrgent(c: AudioContext): void {
+  const t = c.currentTime
+  const beeps: Array<{ f: number; at: number }> = [
+    { f: 880, at: 0 },
+    { f: 880, at: 0.13 },
+    { f: 1046.5, at: 0.26 },
+  ]
+  for (const { f, at } of beeps) {
+    const osc = c.createOscillator()
+    osc.type = 'triangle'
+    osc.frequency.value = f
+    const g = c.createGain()
+    const start = t + at
+    g.gain.setValueAtTime(0.001, start)
+    g.gain.exponentialRampToValueAtTime(0.2, start + 0.005)
+    g.gain.exponentialRampToValueAtTime(0.001, start + 0.07)
+    osc.connect(g).connect(c.destination)
+    osc.start(start)
+    osc.stop(start + 0.09)
+  }
+}
+
+/** 消息提示音累计播放次数（DEV 验收用） */
+let messageSoundPlays = 0
+
+/** 同一种音 150ms 内只播一次（连发 deliver 时不叠音，仿 onPenaltyEvent） */
+const lastMessageSoundAt: Record<MessageSound, number> = { ding: 0, urgent: 0 }
+
+function onMessageEvent(e: Event): void {
+  if (muted) return
+  const c = getAudioContext()
+  if (!c) return
+  const sound = (e as CustomEvent<MessageSoundDetail>).detail?.sound
+  if (sound !== 'ding' && sound !== 'urgent') return
+  const now = Date.now()
+  if (now - lastMessageSoundAt[sound] < 150) return
+  lastMessageSoundAt[sound] = now
+  messageSoundPlays += 1
+  if (sound === 'ding') playDing(c)
+  else playUrgent(c)
+}
+
 // ---- 惩罚 Error 音：penaltySlice 统一入口广播事件，此处订阅（避免 audio↔store 循环依赖） ----
 let lastErrorAt = 0
 
@@ -247,6 +316,9 @@ export function initTickEngine(): void {
   // 惩罚 Error 音：统一入口 penaltySlice 广播 window 事件（#25）
   window.addEventListener('lcd:penalty', onPenaltyEvent)
 
+  // 消息提示音：desktopStore.deliver 在 A/B 档广播 lcd:message（#36）
+  window.addEventListener(MESSAGE_SOUND_EVENT, onMessageEvent)
+
   // DEV 调试句柄：browser_evaluate 用
   if (import.meta.env.DEV) {
     ;(window as unknown as Record<string, unknown>).__lcdAudio = {
@@ -257,6 +329,20 @@ export function initTickEngine(): void {
       toggleMute,
       scheduleTier: () => scheduleTierOf(useGameStore.getState().fuseRemaining),
       beats: () => beat,
+      // 单独试听（内部同样检查解锁，与事件路径共用合成函数）
+      playDing: () => {
+        const c = getAudioContext()
+        if (!c) return
+        playDing(c)
+        messageSoundPlays += 1
+      },
+      playUrgent: () => {
+        const c = getAudioContext()
+        if (!c) return
+        playUrgent(c)
+        messageSoundPlays += 1
+      },
+      messageSounds: () => messageSoundPlays,
     }
   }
 }
