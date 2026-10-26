@@ -30,14 +30,15 @@ export interface Row5State {
  * status !== 'playing' 时轮询直接返回（周期机停）。
  */
 export const createRow5Slice: StateCreator<RootState, [], [], Row5State> = (set, get) => {
-  /** 下次假死时刻：开局（store 创建）45s 后 */
-  let nextStuckAt = Date.now() + ROW5_STUCK_PERIOD_MS
+  /** 下次假死时刻：开局（startGame）45s 后；开局前为 null */
+  let nextStuckAt: number | null = null
   /** 首次仪式成功 = Row5 拆除，之后不再假死（周期机停止推进） */
   let ritualSucceeded = false
 
   const poll = () => {
     const s = get()
-    if (s.status !== 'playing') return
+    if (s.status !== 'playing' || s.gameStartedAt === null) return
+    nextStuckAt ??= s.gameStartedAt + ROW5_STUCK_PERIOD_MS
     const now = Date.now()
 
     if (s.row5Phase === 'normal') {

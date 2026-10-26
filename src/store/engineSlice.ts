@@ -42,6 +42,10 @@ export interface EngineState {
   passcodeIndex: number
   /** 行号 → 冻结截止 epoch ms；冻结期间该行倒计时暂停（fill: 冻结窗格/填错锁） */
   frozenRowsUntil: Record<number, number>
+  /** 开局时刻（epoch ms）；null = 开场动画中，tick / Row5 周期机 / 嘀嗒均不走 */
+  gameStartedAt: number | null
+  /** 开局（幂等）：重置 tick 基准，引信从此刻起走 */
+  startGame: () => void
   /** 冻结指定行 ms 毫秒（重复调用取最晚截止） */
   freezeRow: (row: number, ms: number) => void
   /** 该行当前是否被冻结 */
@@ -56,7 +60,7 @@ export interface EngineState {
   defuseModule: (row: number) => void
 }
 
-/** 上次 tick 时间戳（模块级，不入 state 以免多余渲染）；store 创建即起表 */
+/** 上次 tick 时间戳（模块级，不入 state 以免多余渲染）；开局前每次 tick 原地刷新 */
 let lastTickAt = Date.now()
 
 const explode = (row: number) => `${MODULE_NAMES[row]} 当场爆炸。`
@@ -74,6 +78,13 @@ export const createEngineSlice: StateCreator<RootState, [], [], EngineState> = (
   endReason: null,
   passcodeIndex: pickPasscodeIndex(),
   frozenRowsUntil: {},
+  gameStartedAt: null,
+
+  startGame: () => {
+    if (get().gameStartedAt !== null) return
+    lastTickAt = Date.now()
+    set({ gameStartedAt: lastTickAt })
+  },
 
   freezeRow: (row, ms) => {
     if (get().status !== 'playing') return
@@ -86,6 +97,11 @@ export const createEngineSlice: StateCreator<RootState, [], [], EngineState> = (
 
   tick: () => {
     const now = Date.now()
+    // 开场动画期间（未 startGame）空转：只刷新基准，不扣引信
+    if (get().gameStartedAt === null) {
+      lastTickAt = now
+      return
+    }
     const deltaSec = Math.min(MAX_TICK_DELTA_SEC, (now - lastTickAt) / 1000)
     lastTickAt = now
 

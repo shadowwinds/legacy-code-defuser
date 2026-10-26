@@ -193,7 +193,7 @@ function startLoop(): void {
 function runBeat(): void {
   timer = null
   const store = useGameStore.getState()
-  if (muted || store.status !== 'playing') return
+  if (muted || store.status !== 'playing' || store.gameStartedAt === null) return
 
   const c = getAudioContext()
   if (!c) return
@@ -225,6 +225,11 @@ export function initTickEngine(): void {
 
   // 终局：停嘀嗒 + 终局音；新局：恢复嘀嗒
   useGameStore.subscribe((state, prev) => {
+    // 开局闸门：开场动画结束 startGame() 那一刻起嘀嗒
+    if (state.gameStartedAt !== null && prev.gameStartedAt === null) {
+      if (unlocked) startLoop()
+      return
+    }
     if (state.status === prev.status) return
     if (state.status === 'playing') {
       if (unlocked) startLoop()
