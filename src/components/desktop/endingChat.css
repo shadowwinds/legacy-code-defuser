@@ -41,7 +41,7 @@
 
 .ending-chat-msgs {
   flex: 1;
-  overflow: hidden; /* 只读回看：不可滚动，吐满为止 */
+  overflow: hidden auto; /* 只读回看：pointer-events none 已杜绝用户滚动，超高时程序化滚到底 */
   padding: 12px 14px;
   display: flex;
   flex-direction: column;

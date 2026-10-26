@@ -45,17 +45,16 @@ export function ChatOverlay() {
   const unread = useDesktopStore((s) => s.unread)
   const inbox = useDesktopStore((s) => s.inbox)
 
-  // inbox 本身按投递时间追加，过滤后天然升序
+  // inbox 本身按投递时间追加，过滤后天然升序；boss/hr 才有投递时刻（wang 是固定分镜）
   const conv = useMemo(
     () => (activeContact === 'wang' ? getWangHistory() : inbox.filter((m) => m.contact === activeContact)),
     [inbox, activeContact],
   )
   // boss/hr 会话才有「对方正在输入…」与「已读」（玩家不产生文本，契约 §4.5）
-  const lastAt = useMemo(() => {
-    if (activeContact === 'wang') return 0
-    const list = inbox.filter((m) => m.contact === activeContact)
-    return list[list.length - 1]?.at ?? 0
-  }, [inbox, activeContact])
+  const lastAt = useMemo(
+    () => (activeContact === 'wang' ? 0 : inbox.reduce((acc, m) => (m.contact === activeContact ? m.at : acc), 0)),
+    [inbox, activeContact],
+  )
 
   const msgsRef = useRef<HTMLDivElement>(null)
   useLayoutEffect(() => {
@@ -63,7 +62,11 @@ export function ChatOverlay() {
     if (el) el.scrollTop = el.scrollHeight
   }, [inbox, activeContact])
 
+  // sb_07 红色回执(拒收条的上文),单次查找
+  const wangReceipt = activeContact === 'wang' ? getMessage(WANG_RECEIPT_ID) : null
+
   const [typing, setTyping] = useState(false)
+
   useEffect(() => {
     if (lastAt === 0) {
       setTyping(false)
@@ -143,9 +146,7 @@ export function ChatOverlay() {
               {conv.map((m) => (
                 <ChatRow key={m.id} msg={m} />
               ))}
-              {activeContact === 'wang' && getMessage(WANG_RECEIPT_ID) && (
-                <div className="chat-receipt">{getMessage(WANG_RECEIPT_ID)!.text}</div>
-              )}
+              {activeContact === 'wang' && wangReceipt && <div className="chat-receipt">{wangReceipt.text}</div>}
               {activeContact !== 'wang' && conv.length > 0 && <div className="chat-read">已读</div>}
             </div>
           )}

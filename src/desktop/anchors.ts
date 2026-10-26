@@ -28,10 +28,10 @@ function deliverNow(msg: Pick<DialogueMessage, 'id' | 'contact' | 'text'>): void
 
 /** 投递核心：去重 → 熟悉期排队 / 直投（节流由 deliver 内的 decideTier 兜底） */
 function fireMessage(msg: DialogueMessage): void {
-  if (fired.has(msg.id)) return
-  fired.add(msg.id)
   const s = useGameStore.getState()
-  if (!isPlaying(s)) return
+  // 先判局再记账：对局外触发的锚不作废，回到对局后仍可触发
+  if (!isPlaying(s) || fired.has(msg.id)) return
+  fired.add(msg.id)
   if (elapsedOf(s.fuseRemaining) < QUIET_UNTIL_SEC) {
     pending.push(msg)
     return
@@ -75,6 +75,9 @@ function onGameStore(state: RootState, prev: RootState): void {
   const elapsed = elapsedOf(state.fuseRemaining)
   const prevElapsed = elapsedOf(prev.fuseRemaining)
 
+  // 先释放熟悉期队列再触发新锚：同 tick 跨 40s 时，老消息保持「第一条按原档」(pacing §3)
+  onCrossed(elapsed, prevElapsed)
+
   // ---- store 锚：每 100ms 跑一次，只做 O(1) 比较 ----
   if (prev.activeSheet === 'sheet1' && state.activeSheet === 'sheet2') fire('first_manual_switch')
   if (prev.row5Phase === 'normal' && state.row5Phase === 'stuck') fire('row5_stuck')
@@ -90,8 +93,6 @@ function onGameStore(state: RootState, prev: RootState): void {
     const at = m.trigger.atSec
     if (at !== undefined && prevElapsed < at && at <= elapsed) fireMessage(m)
   }
-
-  onCrossed(elapsed, prevElapsed)
 }
 
 function onPenalty(e: Event): void {
