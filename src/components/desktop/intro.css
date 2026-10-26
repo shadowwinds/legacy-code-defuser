@@ -120,13 +120,17 @@
   height: 84px;
   border: 0;
   border-radius: 14px;
-  background: #107c41;
-  color: #fff;
-  font-size: 44px;
-  font-weight: 700;
-  box-shadow: 0 8px 30px #107c4180;
+  background: none;
+  box-shadow: 0 8px 30px #17685b80;
   cursor: pointer;
   animation: intro-pulse 1.6s ease-in-out infinite;
+}
+
+.intro-xl-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
 }
 
 .intro-xl-icon:focus-visible {

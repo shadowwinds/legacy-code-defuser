@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
+import spreadsheetIcon from '../../assets/icons/spreadsheet.png'
 import { CONTACT_META, getStoryboard } from '../../desktop/dialogues'
 import { useDesktopStore } from '../../desktop/desktopStore'
 import { buildIntroTimeline, INTRO_FLASH_IN_MS, INTRO_FLASH_OUT_MS, INTRO_MAX_MS } from '../../desktop/introTimeline'
@@ -91,7 +92,9 @@ export function IntroGate({ children }: { children: ReactNode }) {
             ))}
             {step.frame === 3 && (
               <>
-                <button type="button" className="intro-xl-icon" aria-label="打开 Excel" onDoubleClick={() => finishIntro(false)}>X</button>
+                <button type="button" className="intro-xl-icon" aria-label="打开 Excel" onDoubleClick={() => finishIntro(false)}>
+                  <img src={spreadsheetIcon} alt="" draggable={false} />
+                </button>
                 <p className="intro-sub">{step.messages[0].text}</p>
               </>
             )}

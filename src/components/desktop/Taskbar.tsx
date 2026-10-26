@@ -1,3 +1,5 @@
+import spreadsheetIcon from '../../assets/icons/spreadsheet.png'
+import workplaceChatIcon from '../../assets/icons/workplace-chat.png'
 import { useDesktopStore } from '../../desktop/desktopStore'
 import { getTooltip } from '../../desktop/dialogues'
 import { formatFuseClock } from '../../lib/clock'
@@ -13,7 +15,7 @@ export function Taskbar() {
     <div className="desktop-taskbar">
       <div className="tb-start" aria-hidden="true">⊞</div>
       <div className="tb-app tb-on" title={getTooltip('egg_taskbar_xl')}>
-        <span className="tb-excel">X</span>
+        <img className="tb-icon" src={spreadsheetIcon} alt="" draggable={false} />
         <span className="tb-dot" />
       </div>
       <button
@@ -25,7 +27,7 @@ export function Taskbar() {
         onMouseDown={(e) => e.preventDefault()}
         onClick={() => useDesktopStore.getState().toggleChat()}
       >
-        💬
+        <img className="tb-icon" src={workplaceChatIcon} alt="" draggable={false} />
         {unread > 0 && <span className="tb-unread">{unread > 99 ? '99+' : unread}</span>}
       </button>
       <div className="tb-app" aria-hidden="true">📁</div>

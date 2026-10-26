@@ -52,8 +52,6 @@
   font-size: 28px;
 }
 
-.desktop-glyph-excel { background: #107c41; }
-.desktop-glyph-chat { background: #3a5f3a; }
 .desktop-glyph-recycle { background: #555; }
 
 .desktop-icon small {
@@ -110,7 +108,12 @@
   cursor: default;
 }
 
-.tb-excel { color: #fff; }
+.tb-icon {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+  pointer-events: none;
+}
 
 .tb-dot {
   position: absolute;
