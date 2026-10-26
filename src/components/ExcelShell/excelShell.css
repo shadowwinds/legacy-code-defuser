@@ -330,7 +330,8 @@
 .comment-pop {
   position: absolute;
   top: 12px;
-  right: -1px;
+  /* A 列批注向右展开，避免越过网格左边界而被滚动容器裁切。 */
+  left: 0;
   display: none;
   width: 240px;
   padding: 6px 9px;

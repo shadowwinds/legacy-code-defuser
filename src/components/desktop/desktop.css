@@ -1,0 +1,149 @@
+.desktop-root {
+  height: 100%;
+  overflow: hidden;
+}
+
+.desktop-wallpaper {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(ellipse at 30% 20%, #1d3b53 0%, transparent 60%),
+    radial-gradient(ellipse at 75% 70%, #143024 0%, transparent 55%),
+    linear-gradient(160deg, #10202e, #0a1410);
+}
+
+/* 不保留动画的层叠上下文，Excel 内的 fixed 弹层继续相对视口定位。 */
+.desktop-excel-window {
+  height: calc(100% - 48px);
+  animation: desktop-open 250ms ease-out;
+}
+
+@keyframes desktop-open {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.desktop-icons {
+  position: absolute;
+  top: 48px;
+  left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.desktop-icon {
+  width: 84px;
+  text-align: center;
+  color: #e8e8e8;
+  font-size: 12px;
+  cursor: default;
+}
+
+.desktop-glyph {
+  width: 52px;
+  height: 52px;
+  margin: 0 auto 6px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+}
+
+.desktop-glyph-excel { background: #107c41; }
+.desktop-glyph-chat { background: #3a5f3a; }
+.desktop-glyph-recycle { background: #555; }
+
+.desktop-icon small {
+  display: block;
+  color: #9ab;
+  font-size: 11px;
+  margin-top: 2px;
+}
+
+.desktop-taskbar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 48px;
+  z-index: 600;
+  background: #1f2733ee;
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+  gap: 6px;
+  border-top: 1px solid #ffffff14;
+}
+
+.tb-start {
+  width: 40px;
+  height: 40px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6cc4ff;
+  font-size: 20px;
+  cursor: default;
+}
+
+.tb-start:hover,
+.tb-app.tb-on {
+  background: #ffffff1a;
+}
+
+.tb-app {
+  position: relative;
+  width: 44px;
+  height: 40px;
+  border: 0;
+  background: none;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  cursor: default;
+}
+
+.tb-excel { color: #fff; }
+
+.tb-dot {
+  position: absolute;
+  bottom: 2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 14px;
+  height: 3px;
+  border-radius: 2px;
+  background: #6cc4ff;
+}
+
+.tb-unread {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  background: #e5484d;
+  color: #fff;
+  font-size: 9px;
+  border-radius: 8px;
+  padding: 0 4px;
+}
+
+.tb-clock {
+  margin-left: auto;
+  text-align: right;
+  color: #dfe6ee;
+  font-size: 12px;
+  line-height: 1.3;
+  font-variant-numeric: tabular-nums;
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+
+.tb-clock b { font-size: 13px; }
+.tb-clock small { display: block; color: #8fa0b3; font-size: 10px; }

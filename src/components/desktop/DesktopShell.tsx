@@ -1,6 +1,17 @@
 import type { ReactNode } from 'react'
+import { DesktopIcons } from './DesktopIcons'
+import { Taskbar } from './Taskbar'
+import './desktop.css'
 
-/** 桌面壳：壁纸 + 桌面图标 + 任务栏，children = Excel 窗口。T0 桩：原样透传；T2 实装。 */
+/** Excel 独占任务栏以上区域，容器不建立定位或层叠上下文。 */
 export function DesktopShell({ children }: { children: ReactNode }) {
-  return <>{children}</>
+  return (
+    <div className="desktop-root">
+      <div className="desktop-wallpaper" aria-hidden="true">
+        <DesktopIcons />
+      </div>
+      <div className="desktop-excel-window">{children}</div>
+      <Taskbar />
+    </div>
+  )
 }
