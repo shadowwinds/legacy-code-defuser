@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
 import spreadsheetIcon from '../../assets/icons/spreadsheet.png'
-import { CONTACT_META, getStoryboard } from '../../desktop/dialogues'
+import { getStoryboard } from '../../desktop/dialogues'
 import { useDesktopStore } from '../../desktop/desktopStore'
 import { buildIntroTimeline, INTRO_FLASH_IN_MS, INTRO_FLASH_OUT_MS, INTRO_MAX_MS } from '../../desktop/introTimeline'
 import { useGameStore } from '../../store'
+import { ContactAvatar } from './ContactAvatar'
 import './intro.css'
 
 const timeline = buildIntroTimeline(getStoryboard())
@@ -80,7 +81,7 @@ export function IntroGate({ children }: { children: ReactNode }) {
                   const player = message.contact === 'player'
                   return (
                     <div key={message.id} className={`intro-row${player ? ' intro-row-player' : ''}`}>
-                      <div className="intro-who" aria-label={CONTACT_META[message.contact].name}>{player ? CONTACT_META.player.avatar : '王'}</div>
+                      <ContactAvatar contact={message.contact} className="intro-who" />
                       <div className="intro-bubble">{message.text}</div>
                     </div>
                   )

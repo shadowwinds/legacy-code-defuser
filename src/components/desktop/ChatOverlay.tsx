@@ -3,6 +3,7 @@ import { useDesktopStore } from '../../desktop/desktopStore'
 import { CHAT_CONTACTS, CONTACT_META, getMessage, getTooltip } from '../../desktop/dialogues'
 import type { ChatContact, Contact } from '../../desktop/dialogues'
 import { ChatBubble } from './ChatBubble'
+import { ContactAvatar } from './ContactAvatar'
 import './chat.css'
 
 /** 气泡流最小行数据：inbox 条目与分镜消息都归一到这个形状 */
@@ -26,12 +27,9 @@ function getWangHistory(): ChatLine[] {
 /** 单行消息：头像 + 气泡（system 无头像，ChatBubble 自己渲染成灰条） */
 function ChatRow({ msg }: { msg: ChatLine }) {
   if (msg.contact === 'system') return <ChatBubble contact={msg.contact} text={msg.text} />
-  const meta = CONTACT_META[msg.contact]
   return (
     <div className={`chat-msg${msg.contact === 'player' ? ' chat-msg-me' : ''}`}>
-      <span className="chat-av" style={{ background: meta.color }}>
-        {meta.avatar}
-      </span>
+      <ContactAvatar contact={msg.contact} className="chat-av" />
       <ChatBubble contact={msg.contact} text={msg.text} />
     </div>
   )
@@ -57,10 +55,11 @@ export function ChatOverlay() {
   )
 
   const msgsRef = useRef<HTMLDivElement>(null)
+  // 关闭时消息区会卸载，重新打开同一会话也要在 DOM 建立后滚到底。
   useLayoutEffect(() => {
     const el = msgsRef.current
     if (el) el.scrollTop = el.scrollHeight
-  }, [inbox, activeContact])
+  }, [inbox, activeContact, chatOpen])
 
   // sb_07 红色回执(拒收条的上文),单次查找
   const wangReceipt = activeContact === 'wang' ? getMessage(WANG_RECEIPT_ID) : null
@@ -123,9 +122,7 @@ export function ChatOverlay() {
                 onMouseDown={(e) => e.preventDefault()}
                 onClick={() => useDesktopStore.getState().selectContact(c)}
               >
-                <span className="chat-item-av" style={{ background: m.color }}>
-                  {m.avatar}
-                </span>
+                <ContactAvatar contact={c} className="chat-item-av" />
                 <span className="chat-item-n">
                   {m.name}
                   <small>{m.subtitle}</small>

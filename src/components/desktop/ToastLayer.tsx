@@ -4,6 +4,7 @@ import type { ToastItem } from '../../desktop/desktopStore'
 import { CONTACT_META, isChatContact } from '../../desktop/dialogues'
 import { ENTER_ANIM_MS } from '../../desktop/tiers'
 import { useGameStore } from '../../store'
+import { ContactAvatar } from './ContactAvatar'
 import './toast.css'
 
 /** 离场淡出时长 = 入场时长，同一节奏预算 */
@@ -40,9 +41,7 @@ function ToastRow({ t }: { t: ToastItem }) {
       onMouseDown={(e) => e.preventDefault()}
       onClick={onClick}
     >
-      <span className="toast-avatar" style={{ background: meta.color }}>
-        {meta.avatar}
-      </span>
+      <ContactAvatar contact={t.contact} className="toast-avatar" />
       <span className="toast-tx">
         <b>{meta.name}</b>
         <span>{t.text}</span>

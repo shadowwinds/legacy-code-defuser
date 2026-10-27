@@ -2,6 +2,7 @@ import { useLayoutEffect, useRef } from 'react'
 import { useDesktopStore } from '../../desktop/desktopStore'
 import { CONTACT_META, getMessage } from '../../desktop/dialogues'
 import { ChatBubble } from './ChatBubble'
+import { ContactAvatar } from './ContactAvatar'
 import './endingChat.css'
 
 /**
@@ -33,9 +34,7 @@ export function EndingChat() {
           return (
             <div key={id} className={`ending-chat-item${m.contact === 'player' ? ' ending-chat-item-me' : ''}`}>
               <span className="ending-chat-who">
-                <span className="ending-chat-av" style={{ background: meta.color }}>
-                  {meta.avatar}
-                </span>
+                <ContactAvatar contact={m.contact} className="ending-chat-av" />
                 {meta.name}
               </span>
               <ChatBubble contact={m.contact} text={m.text} />
