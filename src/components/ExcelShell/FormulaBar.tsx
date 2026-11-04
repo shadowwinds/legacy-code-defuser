@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { GRID_ROWS } from '../../data/gridRows'
 import { cellAddress, rowAddress } from '../../lib/grid'
+import { getRunConfig } from '../../lib/seed'
+import { row2LockedFormula, row2UnlockedFormula } from '../../rules/modules/row2'
 import { useGameStore } from '../../store'
 import '../modules/row2.css'
 
@@ -23,6 +25,12 @@ export function FormulaBar() {
   const selectedCol = useGameStore((s) => s.selectedCol)
   const deadlocked = useGameStore((s) => s.deadlocked)
   const editFx = useGameStore((s) => s.editFx)
+  const row2Guard = useGameStore((s) => s.row2Guard)
+  const situation = useGameStore((s) => s.situation)
+  // v2：公式外观随本局守卫变量变（GDD 07 §7.3 Row2）
+  const v2 = getRunConfig().v2
+  const fxLocked = v2 ? row2LockedFormula({ guard: row2Guard }) : FX_ROW2_LOCKED
+  const fxUnlocked = v2 ? row2UnlockedFormula({ guard: row2Guard }, situation) : FX_ROW2_UNLOCKED
 
   const [editing, setEditing] = useState(false)
   const [draft, setDraft] = useState('')
@@ -38,8 +46,8 @@ export function FormulaBar() {
   const content =
     selectedRow === 2
       ? deadlocked
-        ? FX_ROW2_LOCKED
-        : FX_ROW2_UNLOCKED
+        ? fxLocked
+        : fxUnlocked
       : `=${GRID_ROWS[selectedRow - 1]?.text ?? ''}`
 
   useEffect(() => {
@@ -55,7 +63,7 @@ export function FormulaBar() {
 
   const startEdit = () => {
     if (!row2Armed) return
-    setDraft(FX_ROW2_LOCKED)
+    setDraft(fxLocked)
     setEditing(true)
   }
 
