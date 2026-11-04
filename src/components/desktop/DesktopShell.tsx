@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import { CrashOutLayer } from '../crashOut/CrashOutLayer'
 import { DesktopIcons } from './DesktopIcons'
 import { Taskbar } from './Taskbar'
 import './desktop.css'
@@ -12,6 +13,8 @@ export function DesktopShell({ children }: { children: ReactNode }) {
       </div>
       <div className="desktop-excel-window">{children}</div>
       <Taskbar />
+      {/* v2 崩出 Excel 演出（#56）：v2 关闭时不渲染 */}
+      <CrashOutLayer />
     </div>
   )
 }

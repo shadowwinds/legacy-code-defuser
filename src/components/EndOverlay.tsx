@@ -2,7 +2,9 @@ import { useEffect, useState } from 'react'
 import { useDesktopStore } from '../desktop/desktopStore'
 import { ENDING_OVERLAY_DELAY_MS } from '../desktop/tiers'
 import { useGameStore } from '../store'
-import { startNewRun } from '../lib/seed'
+import { getRunConfig, startNewRun } from '../lib/seed'
+import { endingDelayMs } from '../lib/crashOut'
+import { runSceneCopy } from '../rules/sceneCopy'
 import './endOverlay.css'
 
 /**
@@ -25,7 +27,8 @@ export function EndOverlay() {
       setDelayed(false)
       return
     }
-    const id = window.setTimeout(() => setDelayed(true), ENDING_OVERLAY_DELAY_MS)
+    // v2：碎窗 / 倒放演完再出（#56）
+    const id = window.setTimeout(() => setDelayed(true), ENDING_OVERLAY_DELAY_MS + endingDelayMs(status, getRunConfig().v2))
     return () => window.clearTimeout(id)
   }, [status])
 
@@ -47,7 +50,7 @@ export function EndOverlay() {
               <div className="win98-msg">
                 <span className="win98-msg-icon" aria-hidden="true">💾</span>
                 <span>
-                  是否保存对「核心业务_最终版_打死勿动.xlsx」的修改?
+                  是否保存对「{runSceneCopy().vars.workbook}」的修改?
                   {saveClicked ? <span className="win98-save-quip">……你认真的?这表可是会自爆的。</span> : null}
                 </span>
               </div>

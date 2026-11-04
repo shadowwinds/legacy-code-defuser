@@ -1,0 +1,229 @@
+/* 崩出 Excel 的高潮演出（#56，GDD 07 §7.6）。
+ * 层级：任务栏 600 < 本层 650 < 聊天 700 < toast 800 < 结局弹窗 999 < 结局对话 1001。
+ * 全部 pointer-events: none。 */
+
+/* ── 1. 最后 30 秒：错误值漏出表格 ─────────────────────────── */
+.crash-leak {
+  position: fixed;
+  inset: 0;
+  z-index: 650;
+  pointer-events: none;
+}
+
+.crash-chip {
+  position: fixed;
+  width: 58px;
+  height: 18px;
+  line-height: 18px;
+  text-align: center;
+  font: 700 11px/18px Consolas, 'Courier New', monospace;
+  color: #9c0006;
+  background: #ffc7ce;
+  border: 1px solid #e6a3ab;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 18%);
+  animation: crash-chip-in 420ms cubic-bezier(0.2, 0.9, 0.3, 1.3) both;
+}
+
+/* 越过窗口下缘的那几个更扎眼：任务栏是深色底 */
+.crash-chip.zone-taskbar {
+  color: #fff;
+  background: #c50f1f;
+  border-color: #ff6b6b;
+  box-shadow: 0 0 8px rgb(255 60 60 / 70%);
+  animation-name: crash-chip-climb;
+}
+
+@keyframes crash-chip-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.4);
+  }
+}
+
+/* 从上方（窗口里）翻过来 */
+@keyframes crash-chip-climb {
+  from {
+    opacity: 0;
+    transform: translateY(-40px) rotate(-12deg) scale(0.5);
+  }
+}
+
+/* 通关倒放：缩回表格 */
+.crash-leak.rewind .crash-chip {
+  animation: crash-chip-out 600ms ease-in forwards;
+  animation-delay: 0ms !important;
+}
+
+@keyframes crash-chip-out {
+  to {
+    opacity: 0;
+    transform: translateY(30vh) scale(0.2);
+  }
+}
+
+/* ── 2. 爆炸：碎窗 → 蓝屏 ───────────────────────────────────── */
+:root[data-crash='shatter'] .desktop-excel-window {
+  animation: crash-window-hide 1ms linear 250ms forwards;
+}
+
+@keyframes crash-window-hide {
+  to {
+    visibility: hidden;
+  }
+}
+
+.crash-shatter {
+  position: fixed;
+  inset: 0 0 48px 0;
+  z-index: 650;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.crash-bsod {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 0 12vw;
+  color: #fff;
+  background: #0b5cad;
+  font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+  font-size: 18px;
+  opacity: 0;
+  animation: crash-fade-in 300ms ease-out 250ms forwards;
+}
+
+.crash-bsod-face {
+  font-size: 120px;
+  line-height: 1;
+  margin-bottom: 24px;
+}
+
+.crash-bsod-title {
+  font-size: 30px;
+  margin: 0 0 12px;
+}
+
+.crash-bsod p {
+  margin: 0 0 8px;
+}
+
+.crash-bsod-code {
+  margin-top: 24px !important;
+  font-size: 14px;
+  opacity: 0.8;
+}
+
+/* 碎块：表格白底 + 网格线，带一点 Excel 绿边，看得出是窗口的碎片 */
+.crash-shard {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(#217346 0 30px, transparent 30px),
+    repeating-linear-gradient(0deg, transparent 0 33px, #d4d4d4 33px 34px),
+    repeating-linear-gradient(90deg, transparent 0 95px, #d4d4d4 95px 96px),
+    #fff;
+  animation: crash-shard-fall 950ms cubic-bezier(0.55, 0, 0.9, 0.4) both;
+}
+
+@keyframes crash-shard-fall {
+  0% {
+    transform: none;
+    opacity: 1;
+  }
+  100% {
+    transform: translate(var(--dx), 115vh) rotate(var(--rot));
+    opacity: 0.9;
+  }
+}
+
+.crash-cracks {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  animation: crash-fade-out 200ms linear 250ms forwards;
+}
+
+.crash-cracks polygon {
+  fill: none;
+  stroke: #fff;
+  stroke-width: 2.5px;
+  vector-effect: non-scaling-stroke;
+  filter: drop-shadow(0 0 2px rgb(0 0 0 / 60%));
+  stroke-dasharray: 400;
+  stroke-dashoffset: 400;
+  animation: crash-crack-draw 220ms ease-out forwards;
+}
+
+@keyframes crash-crack-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes crash-fade-in {
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes crash-fade-out {
+  to {
+    opacity: 0;
+  }
+}
+
+/* ── 3. 通关：整表刷绿 ──────────────────────────────────────── */
+.crash-green-wash {
+  position: fixed;
+  inset: 0 0 48px 0;
+  z-index: 650;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgb(198 239 206 / 0%), rgb(198 239 206 / 85%) 40%, rgb(198 239 206 / 0%) 80%);
+  background-size: 100% 250%;
+  animation: crash-green-sweep 900ms ease-in-out 450ms both;
+}
+
+@keyframes crash-green-sweep {
+  from {
+    background-position: 0 100%;
+    opacity: 1;
+  }
+  80% {
+    opacity: 1;
+  }
+  to {
+    background-position: 0 0;
+    opacity: 0;
+  }
+}
+
+/* ── 减弱动态效果：不位移，只淡入淡出 ─────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .crash-chip,
+  .crash-chip.zone-taskbar {
+    animation: crash-fade-in 300ms ease-out both;
+    opacity: 0;
+  }
+  .crash-leak.rewind .crash-chip {
+    animation: crash-fade-out 400ms linear forwards;
+    opacity: 1;
+  }
+  .crash-shard,
+  .crash-cracks {
+    display: none;
+  }
+  .crash-bsod {
+    animation-delay: 0ms;
+  }
+  :root[data-crash='shatter'] .desktop-excel-window {
+    animation: crash-fade-out 300ms linear forwards;
+  }
+  .crash-green-wash {
+    animation: crash-fade-out 800ms linear both;
+    background: rgb(198 239 206 / 70%);
+  }
+}
