@@ -1,3 +1,4 @@
+import { PASSCODES } from '../../data/passcodes'
 import './manualSheet.css'
 
 /**
@@ -6,14 +7,8 @@ import './manualSheet.css'
  * 与 Sheet1 常驻挂载，由外层 .sheet-pane 的 CSS 显隐切换；根节点即滚动容器。
  */
 
-/** 附录A · 乱码对照表（每局随机 1 行生效；data-idx 为后续生效行高亮的样式钩子） */
-const PASSCODE_ROWS = [
-  { idx: 0, serial: '42005.0', date: '2015-01-05', passcode: 'Q3_OKR_别问' },
-  { idx: 1, serial: '42441.5', date: '2016-03-14', passcode: 'left_pad_同款' },
-  { idx: 2, serial: '42736.0', date: '2017-01-03', passcode: '老板生日快乐' },
-  { idx: 3, serial: '43101.0', date: '2018-01-03', passcode: '跑路勿念' },
-  { idx: 4, serial: '43466.5', date: '2019-01-03', passcode: '锟斤拷烫烫烫' },
-]
+/** 附录A · 乱码对照表：直接读 data/passcodes.ts（每局随机 1 行生效；data-idx 为生效行高亮的样式钩子） */
+const PASSCODE_ROWS = PASSCODES.map((e, idx) => ({ idx, serial: e.serial.toFixed(1), date: e.date, passcode: e.passcode }))
 
 export function ManualSheet() {
   return (
@@ -40,7 +35,7 @@ export function ManualSheet() {
           </li>
           <li className="manual-item">
             <span className="manual-no">1.3</span>
-            <p className="manual-item-text"><strong>乱码考古</strong>：D 列那串井号不是坏了，是窄了。拉宽了看，是个数。数不是数，是日期。格式切一下看。对照附录A，把口令填回去。别问为什么，Excel 1900 年没有 2 月 29 日，这事没人能解释。</p>
+            <p className="manual-item-text"><strong>乱码考古</strong>：D 列那串井号不是坏了，是窄了。拉宽了看，是个数。数不是数，是日期。格式切一下看。对照附录A，把口令填回去。别问为什么，Excel 坚信 1900 年有 2 月 29 日，这事没人能解释。</p>
           </li>
           <li className="manual-item">
             <span className="manual-no">1.4</span>

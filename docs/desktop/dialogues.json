@@ -42,7 +42,7 @@
     { "id": "ed_row2_03", "category": "ending", "contact": "hr", "text": "工资都会发的~网关不同意也会发的~", "trigger": { "type": "ending", "ending": "row2" }, "orderInGroup": 3, "effects": { "sound": "none", "badge": true }, "_provenance": "agent-draft" },
 
     { "id": "ed_row3_01", "category": "ending", "contact": "boss", "text": "口令错误?!1900 年的事关我什么事!!", "trigger": { "type": "ending", "ending": "row3" }, "orderInGroup": 1, "effects": { "sound": "urgent", "badge": true }, "_provenance": "agent-draft" },
-    { "id": "ed_row3_02", "category": "ending", "contact": "wang", "text": "Excel 没有 2 月 29 日。这事没人能解释。", "trigger": { "type": "ending", "ending": "row3" }, "orderInGroup": 2, "effects": { "sound": "none", "badge": true }, "_provenance": "agent-draft" },
+    { "id": "ed_row3_02", "category": "ending", "contact": "wang", "text": "Excel 坚信 1900 年有 2 月 29 日。这事没人能解释。", "trigger": { "type": "ending", "ending": "row3" }, "orderInGroup": 2, "effects": { "sound": "none", "badge": true }, "_provenance": "agent-draft" },
     { "id": "ed_row3_03", "category": "ending", "contact": "hr", "text": "已为您预约 IT 考古培训。讲师:空缺。", "trigger": { "type": "ending", "ending": "row3" }, "orderInGroup": 3, "effects": { "sound": "none", "badge": true }, "_provenance": "agent-draft" },
 
     { "id": "ed_row4_01", "category": "ending", "contact": "boss", "text": "差 {row4Target}?!这是钱的事吗?这是态度的事!", "trigger": { "type": "ending", "ending": "row4" }, "orderInGroup": 1, "effects": { "sound": "urgent", "badge": true }, "_provenance": "agent-draft" },

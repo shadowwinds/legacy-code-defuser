@@ -13,7 +13,7 @@
 | 5 | [05-schedule.md](05-schedule.md) | 里程碑与验收标准 |
 | 6 | [06-desktop.md](06-desktop.md) | v1.1 桌面化：任务栏、聊天、开场动画、结局对话 |
 | 7 | [07-v2-modules.md](07-v2-modules.md) | v2：外壳变量、时间场景、五模块规则表、碰撞率、崩出 Excel |
-| 8 | [08-v2-manual.md](08-v2-manual.md) | v2 手册《离职交接文档》全文草稿（待拍板） |
+| 8 | [08-v2-manual.md](08-v2-manual.md) | v2 手册《离职交接文档》全文（定稿） |
 
 配套决策记录见 [docs/adr/0001-tech-stack.md](../adr/0001-tech-stack.md)。
 
