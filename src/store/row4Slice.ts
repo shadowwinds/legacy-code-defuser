@@ -1,5 +1,19 @@
 import type { StateCreator } from 'zustand'
 import type { RootState } from './index'
+import { getRunConfig } from '../lib/seed'
+import {
+  ROW4_MODE_LABEL,
+  isGError,
+  lazyFormulaFor,
+  row4Appearance,
+  row4Stat,
+  row4Target,
+  type GCellValue,
+  type Row4Mode,
+} from '../rules/modules/row4'
+import { createSituation } from '../rules/situation'
+
+export type { GCellValue } from '../rules/modules/row4'
 
 /** 平账目标：G 列求和 = 1024 即账平（GDD 02 §2.3 Row4，数值写死） */
 export const RECON_TARGET = 1024
@@ -14,9 +28,6 @@ export const LAZY_FORMULA = '=1024-SUM(G2:G9)'
 /** 平账判定容差：浮点污染数据下玩家只能"凑数"，0.001 内视为账平 */
 export const RECON_EPSILON = 0.001
 
-/** G 列单元格值：数字 / 空格(null) / Excel 错误值 / 偷懒公式格 */
-export type GCellValue = number | null | '#DIV/0!' | '#VALUE!' | 'LAZY'
-
 /** 开局垃圾数据（下标 = 行号 - 1）：祖传浮点污染 + #DIV/0! 故障格 + Row8 禁操格 */
 const INITIAL_G_CELLS: GCellValue[] = [
   666.6,
@@ -29,12 +40,21 @@ const INITIAL_G_CELLS: GCellValue[] = [
   9.999999999999998,
 ]
 
+/** v2：本局外观与目标（GDD 07 §7.3 Row4）；v1 固定求和 1024、固定垃圾数据 */
+const V2 = getRunConfig().v2
+const APPEARANCE = V2 ? row4Appearance(getRunConfig().seed) : null
+const TARGET = V2 ? row4Target(createSituation(getRunConfig().seed)) : RECON_TARGET
+
 export interface Row4State {
+  /** 状态栏统计方式（v1 恒为求和） */
+  row4Mode: Row4Mode
+  /** 本局平账目标值（v1 恒为 1024） */
+  row4Target: number
   /** G 列 8 格（Row1–Row8），下标 = 行号 - 1 */
   gCells: GCellValue[]
   /** 是否存在错误格（#DIV/0!/#VALUE!）：监控脚本算不出数，状态栏显示「求和: ≠1024」 */
   gHasError: boolean
-  /** G 列数字格求和（错误格不计） */
+  /** G 列数字格求和（错误格不计）；v2 平均值模式下是平均值 */
   gSum: number
   /** 是否已账平（凑够 1024 或偷懒公式，均已触发 defuseModule(4)） */
   gBalanced: boolean
@@ -51,15 +71,29 @@ export interface Row4State {
   setGCell: (idx: number, raw: string) => void
 }
 
-/** 状态栏求和文案（StatusBar 唯一消费点；GDD 02 §2.3：初始 #DIV/0! 时显示「求和: ≠1024」） */
-export function reconSumLabel(s: Pick<Row4State, 'gHasError' | 'gSum' | 'gBalanced'>): string {
+/**
+ * 状态栏统计文案（StatusBar 唯一消费点）。
+ * v1（GDD 02 §2.3）：初始 #DIV/0! 时显示「求和: ≠1024」。
+ * v2：不泄露目标值——算不出时显示「求和/平均值: #DIV/0!」。
+ */
+export function reconSumLabel(
+  s: Pick<Row4State, 'gHasError' | 'gSum' | 'gBalanced' | 'gCells' | 'row4Mode' | 'row4Target'>,
+): string {
+  if (getRunConfig().v2) {
+    const name = ROW4_MODE_LABEL[s.row4Mode]
+    if (s.gBalanced) return `${name}: ${s.row4Target}`
+    const v = row4Stat(s.gCells, s.row4Mode)
+    return v === null ? `${name}: #DIV/0!` : `${name}: ${Math.round(v * 1000) / 1000}`
+  }
   if (s.gBalanced) return `求和: ${RECON_TARGET}`
   if (s.gHasError) return '求和: ≠1024'
   return `求和: ${Math.round(s.gSum * 1000) / 1000}`
 }
 
 export const createRow4Slice: StateCreator<RootState, [], [], Row4State> = (set, get) => ({
-  gCells: INITIAL_G_CELLS,
+  row4Mode: APPEARANCE?.mode ?? 'sum',
+  row4Target: TARGET,
+  gCells: APPEARANCE?.junk ?? INITIAL_G_CELLS,
   gHasError: true,
   gSum: 0,
   gBalanced: false,
@@ -77,13 +111,16 @@ export const createRow4Slice: StateCreator<RootState, [], [], Row4State> = (set,
 
     // 偷懒公式彩蛋：直接过关 + 弹批注「外包本人吧？」（GDD 02 §2.3 预期彩蛋）。
     // 糊弄语义：错误格一并糊掉，过关后 G 列无 #DIV/0!/#VALUE! 残留（#24）
-    if (trimmed.toLowerCase() === LAZY_FORMULA.toLowerCase()) {
+    // v2：偷懒公式写本局目标值，且只在求和模式下有效（平均值模式下按非数字处理 → #VALUE!）
+    const lazy = V2 ? lazyFormulaFor(s.row4Target) : LAZY_FORMULA
+    const lazyOk = !V2 || s.row4Mode === 'sum'
+    if (lazyOk && trimmed.toLowerCase() === lazy.toLowerCase()) {
       cells[idx] = 'LAZY'
-      const cleaned = cells.map((c) => (c === '#DIV/0!' || c === '#VALUE!' ? null : c))
+      const cleaned = cells.map((c) => (isGError(c) ? null : c))
       set({
         gCells: cleaned,
         gHasError: false,
-        gSum: RECON_TARGET,
+        gSum: s.row4Target,
         gBalanced: true,
         touched: true,
         lazyEggSeq: s.lazyEggSeq + 1,
@@ -99,13 +136,14 @@ export const createRow4Slice: StateCreator<RootState, [], [], Row4State> = (set,
     else v = '#VALUE!'
 
     cells[idx] = v
-    const hasError = cells.some((c) => c === '#DIV/0!' || c === '#VALUE!')
-    const sum = cells.reduce<number>((acc, c) => (typeof c === 'number' ? acc + c : acc), 0)
-    const balanced = !hasError && Math.abs(sum - RECON_TARGET) < RECON_EPSILON
+    const hasError = cells.some(isGError)
+    const stat = row4Stat(cells, s.row4Mode)
+    const sum = stat ?? 0
+    const balanced = !hasError && stat !== null && Math.abs(stat - s.row4Target) < RECON_EPSILON
 
     if (balanced) {
       // GDD 02 §2.3：凑到 1024 = 过关（defuseModule 内部倒计时回满 + 标记已拆）
-      set({ gCells: cells, gHasError: false, gSum: RECON_TARGET, gBalanced: true, touched: true })
+      set({ gCells: cells, gHasError: false, gSum: s.row4Target, gBalanced: true, touched: true })
       s.defuseModule(4)
     } else {
       set({ gCells: cells, gHasError: hasError, gSum: sum, touched: true })

@@ -9,10 +9,15 @@ import {
   LAZY_FORMULA,
   type GCellValue,
 } from '../../store/row4Slice'
+import { getRunConfig } from '../../lib/seed'
+import { lazyFormulaFor } from '../../rules/modules/row4'
 import './row4.css'
 
 /** G 列 = 第 7 列（1-based，A–H）；G 列 8 格即彩蛋公式 SUM(G2:G9) 引用的数据区 */
 const G_COL = 7
+
+/** 偷懒公式的展示文本：v2 写本局目标值 */
+const lazyText = () => (getRunConfig().v2 ? lazyFormulaFor(useGameStore.getState().row4Target) : LAZY_FORMULA)
 
 interface EditingState {
   idx: number
@@ -22,7 +27,7 @@ interface EditingState {
 function displayOf(v: GCellValue): { text: string; kind: 'num' | 'err' | 'formula' | 'empty' } {
   if (v === null) return { text: '', kind: 'empty' }
   if (typeof v === 'number') return { text: String(v), kind: 'num' }
-  if (v === 'LAZY') return { text: LAZY_FORMULA, kind: 'formula' }
+  if (v === 'LAZY') return { text: lazyText(), kind: 'formula' }
   return { text: v, kind: 'err' }
 }
 
@@ -31,6 +36,7 @@ function displayOf(v: GCellValue): { text: string; kind: 'num' | 'err' | 'formul
  * 以绝对定位覆盖层接管 G 列 8 格（G2:G9 拟真数据区），不改动 Grid 渲染循环：
  * - 点击格 → 选中 + 行内编辑（填数/删数/偷懒公式），状态栏实时显示求和；
  * - 求和凑到 1024 → defuseModule(4) 过关；`=1024-SUM(G2:G9)` 彩蛋直接过关弹批注；
+ *   v2：状态栏统计方式（求和/平均值）与目标值随本局（GDD 07 §7.3 Row4），判定在 row4Slice；
  * - Edge A：失衡（≠1024）每持续满 10s → Row2/Row3 各 -15s（经惩罚管线，周期连坐）；
  * - Row8 的 G 格 pointer-events:none——「别动它能跑」禁操行，点击穿透给底层单元格。
  * 选中 Row4 + 失衡时的红色追踪箭头由既有 TrackerOverlay 消费 row4Imbalanced 渲染。
@@ -152,7 +158,7 @@ export function Row4GOverlay() {
               d.kind !== 'empty' && (
                 <span
                   className={`row4-g-val ${d.kind}`}
-                  title={d.kind === 'formula' ? LAZY_FORMULA : undefined}
+                  title={d.kind === 'formula' ? lazyText() : undefined}
                 >
                   {d.text}
                 </span>
