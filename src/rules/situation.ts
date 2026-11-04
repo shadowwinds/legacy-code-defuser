@@ -69,6 +69,18 @@ export const predicates = {
   authorOutsourcer: (s: Situation) => s.author === '外包-张三',
 }
 
+/**
+ * 手册里对每个开关的问法与「去哪找」（GDD 08 附录 C）。正文表头与附录 C 共用这一份，
+ * 规则表新增谓词时这里必须同步（manual 测试会拦）。作者谓词只在附录 B 用，不进附录 C。
+ */
+export const PREDICATE_MANUAL: Record<Exclude<keyof typeof predicates, 'authorOutsourcer'>, { question: string; where: string; yes: string }> = {
+  macroBar: { question: '有宏警告条？', where: 'Ribbon 下面那条黄色「安全警告 宏已被禁用」', yes: '有这条就是' },
+  versionOdd: { question: '版本号末位单数？', where: '窗口最上面的标题栏，文件名 _v 后面的数字', yes: '末位是 1、3、5、7、9' },
+  weekend: { question: '周末？', where: '屏幕右下角任务栏，日期后面的星期', yes: '周六、周日' },
+  night: { question: '深夜？', where: '屏幕右下角任务栏的时钟', yes: '晚上 9 点以后（含 0 点）' },
+  pastPayday: { question: '过了 15 号？', where: '屏幕右下角任务栏的日期', yes: '16 号及以后' },
+}
+
 const weekdayOf = (y: number, m: number, d: number) => new Date(Date.UTC(y, m - 1, d)).getUTCDay()
 
 /** 由种子生成本局局面 */

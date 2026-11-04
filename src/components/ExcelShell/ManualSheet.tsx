@@ -1,4 +1,6 @@
 import { PASSCODES } from '../../data/passcodes'
+import { getRunConfig } from '../../lib/seed'
+import { ManualSheetV2 } from './ManualSheetV2'
 import './manualSheet.css'
 
 /**
@@ -11,6 +13,8 @@ import './manualSheet.css'
 const PASSCODE_ROWS = PASSCODES.map((e, idx) => ({ idx, serial: e.serial.toFixed(1), date: e.date, passcode: e.passcode }))
 
 export function ManualSheet() {
+  // v2（#57）：显示定稿 v2 手册（docs/gdd/08-v2-manual.md）；关闭时为下面的 v1 手册
+  if (getRunConfig().v2) return <ManualSheetV2 />
   return (
     <div className="manual">
       <article className="manual-paper">
