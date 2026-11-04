@@ -40,7 +40,7 @@ function Row3PasscodeCell({ cell = 'F3' }: { cell?: Row3Cell }) {
         placeholder={solved ? '' : '输入口令'}
         readOnly={solved}
         disabled={status !== 'playing'}
-        aria-label="口令输入"
+        aria-label={`${cell} 口令输入`}
         onChange={(e) => setText(e.target.value)}
         onKeyDown={(e) => {
           if (e.key !== 'Enter' || solved || status !== 'playing') return

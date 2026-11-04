@@ -18,3 +18,6 @@ desktop.ini
 .vscode/
 .idea/
 *.swp
+
+# 端到端冒烟失败截图
+e2e/artifacts/

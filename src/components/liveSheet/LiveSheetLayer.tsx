@@ -83,7 +83,7 @@ export function LiveSheetLayer() {
           )
         })}
       {sweeps.map((s) => (
-        <div key={s.id} className="lv-sweep" style={{ top: geometry.rowH * s.row }}>
+        <div key={s.id} className="lv-sweep" data-row={s.row} style={{ top: geometry.rowH * s.row }}>
           <span className="lv-stamp">已拆 ✓</span>
         </div>
       ))}
