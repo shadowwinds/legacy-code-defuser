@@ -1,6 +1,11 @@
 import type { StateCreator } from 'zustand'
 import type { RootState } from './index'
 import { EDGE_B } from '../lib/dependencyGraph'
+import { getRunConfig } from '../lib/seed'
+import { row5Answer, row5Appearance, type Row5Code, type Row5Ritual } from '../rules/modules/row5'
+
+/** v2：选错仪式本行扣秒（仍在窗口内可重试，GDD 07 §7.3 Row5，待 playtest） */
+export const ROW5_WRONG_PENALTY_SEC = 10
 
 /** Row5 假死周期（毫秒）：开局 45s 后首次假死，此后每 45s 一次（固定周期，无随机轴） */
 export const ROW5_STUCK_PERIOD_MS = 45_000
@@ -20,8 +25,13 @@ export interface Row5State {
   row5StuckAt: number | null
   /** Edge B 反噬命中的行号（该行单元格闪两下）；1.2s 后自动清 null */
   edgeBHitRow: number | null
-  /** 重启仪式：仅 stuck 且 playing 时有效；成功 = Row5 拆除 + Edge B 反噬随机未拆模块 */
-  performRitual: () => void
+  /** v2：假死时 F5 报错码（本局外观）；v1 固定 #STUCK! */
+  row5Code: Row5Code
+  /**
+   * 重启仪式：仅 stuck 且 playing 时有效；成功 = Row5 拆除 + Edge B 反噬随机未拆模块。
+   * v1 只有 [重启服务] 一个选项，调用即成功；v2 按规则表（报错码 × 外壳开关）判定，选错本行 -10s 可重试。
+   */
+  performRitual: (ritual?: Row5Ritual) => 'correct' | 'wrong' | 'ignored'
 }
 
 /**
@@ -30,7 +40,11 @@ export interface Row5State {
  * status !== 'playing' 时轮询直接返回（周期机停）。
  */
 export const createRow5Slice: StateCreator<RootState, [], [], Row5State> = (set, get) => {
-  /** 下次假死时刻：开局（startGame）45s 后；开局前为 null */
+  const v2 = getRunConfig().v2
+  const appearance = row5Appearance(getRunConfig().seed)
+  /** 首次假死距开局：v1 固定 45s，v2 每局 35–55s */
+  const firstStuckMs = v2 ? appearance.firstStuckMs : ROW5_STUCK_PERIOD_MS
+  /** 下次假死时刻：开局（startGame）firstStuckMs 后；开局前为 null */
   let nextStuckAt: number | null = null
   /** 首次仪式成功 = Row5 拆除，之后不再假死（周期机停止推进） */
   let ritualSucceeded = false
@@ -38,7 +52,7 @@ export const createRow5Slice: StateCreator<RootState, [], [], Row5State> = (set,
   const poll = () => {
     const s = get()
     if (s.status !== 'playing' || s.gameStartedAt === null) return
-    nextStuckAt ??= s.gameStartedAt + ROW5_STUCK_PERIOD_MS
+    nextStuckAt ??= s.gameStartedAt + firstStuckMs
     const now = Date.now()
 
     if (s.row5Phase === 'normal') {
@@ -61,10 +75,16 @@ export const createRow5Slice: StateCreator<RootState, [], [], Row5State> = (set,
     row5Phase: 'normal',
     row5StuckAt: null,
     edgeBHitRow: null,
+    row5Code: v2 ? appearance.code : '#STUCK!',
 
-    performRitual: () => {
+    performRitual: (ritual = 'restart') => {
       const s = get()
-      if (s.status !== 'playing' || s.row5Phase !== 'stuck') return
+      if (s.status !== 'playing' || s.row5Phase !== 'stuck') return 'ignored'
+
+      if (v2 && ritual !== row5Answer(s.situation, { code: s.row5Code })) {
+        s.applyPenalty({ row: 5, sec: ROW5_WRONG_PENALTY_SEC, source: 'row5:wrong' })
+        return 'wrong'
+      }
 
       // 阶段推进重置：成功后周期机停止，Row5 不再假死
       ritualSucceeded = true
@@ -74,18 +94,19 @@ export const createRow5Slice: StateCreator<RootState, [], [], Row5State> = (set,
       s.defuseModule(5)
 
       const after = get()
-      if (after.status !== 'playing') return
+      if (after.status !== 'playing') return 'correct'
 
       // Edge B · 重启是赌博：随机 1 个未拆模块 -5s（Row5 已拆自然排除）
       const aliveRows = after.modules.filter((m) => !m.defused).map((m) => m.row)
       const target = EDGE_B.pickTarget?.(aliveRows) ?? null
-      if (target === null) return
+      if (target === null) return 'correct'
 
       after.applyPenalty({ row: target, sec: EDGE_B.penaltySec, source: 'edge-b' })
       set({ edgeBHitRow: target })
       window.setTimeout(() => {
         if (get().edgeBHitRow === target) set({ edgeBHitRow: null })
       }, EDGE_B_FLASH_MS)
+      return 'correct'
     },
   }
 }
