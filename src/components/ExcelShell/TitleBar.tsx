@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { isMuted, toggleMute } from '../../audio/tick'
 
-export function TitleBar() {
+/** notResponding：活表格 L3（#48）时标题栏像卡死的 Windows 程序一样追加「(未响应)」 */
+export function TitleBar({ notResponding = false }: { notResponding?: boolean }) {
   const [muted, setMuted] = useState(isMuted())
 
   return (
@@ -11,7 +12,10 @@ export function TitleBar() {
         <span>↶</span>
         <span>↷</span>
       </div>
-      <div className="title">核心业务_最终版_打死勿动.xlsx (未激活的产品)</div>
+      <div className="title">
+        核心业务_最终版_打死勿动.xlsx (未激活的产品)
+        {notResponding && <span className="title-not-responding">(未响应)</span>}
+      </div>
       <button
         type="button"
         className="mute-btn"

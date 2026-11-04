@@ -1,0 +1,279 @@
+/* ===== 活表格（#48，v2）：铺满屏幕 + 错误值传染 + L3 未响应 + 拆除擦除盖章 =====
+   纯演出：所有元素 pointer-events: none，不参与判定、不挡操作。
+   网格尺寸走 --row-header-w / --col-w / --row-h（v2 下由 Grid 按窗口宽度写在 .grid-wrap 上）。 */
+
+/* 活表格不竖向滚动：第 9 行以下补出的空行只用来铺满屏幕 */
+.grid-wrap.live-sheet {
+  overflow-y: hidden;
+}
+
+/* 不设 z-index、不建层叠上下文：擦除波的 multiply 才能和下面的单元格混合；
+   选中框（z 2）、批注（z 4+）、模块弹层都仍在演出层之上 */
+.lv-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.lv-layer * {
+  pointer-events: none;
+}
+
+/* ---- 第 9 行以下的空表 ---- */
+.lv-phantom {
+  position: absolute;
+  left: 0;
+}
+.lv-phantom-row {
+  display: flex;
+}
+.lv-phantom-rh {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--xlsx-toolbar);
+  color: #555;
+  font-size: 12px;
+  border-right: 1px solid #e0e0e0;
+  border-bottom: 1px solid #e0e0e0;
+}
+.lv-phantom-cell {
+  flex: none;
+  border-right: 1px solid #e0e0e0;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+/* ---- 传染格子：Excel 条件格式红 + 错误值 ---- */
+.lv-infected {
+  position: absolute;
+  height: var(--row-h);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: var(--xlsx-err-bg);
+  color: var(--xlsx-err-fg);
+  border-right: 1px solid rgba(156, 0, 6, 0.22);
+  border-bottom: 1px solid rgba(156, 0, 6, 0.22);
+  font: 700 12px/1 Consolas, 'Courier New', monospace;
+  white-space: nowrap;
+}
+/* 只在本局第一次出现时播入场 */
+.lv-infected.lv-fresh {
+  animation: lv-infect 380ms steps(4) both;
+}
+@keyframes lv-infect {
+  0% {
+    background: #fff;
+    color: transparent;
+    transform: scaleY(0.2);
+  }
+  50% {
+    background: #ff4d5e;
+    color: #fff;
+  }
+  100% {
+    transform: none;
+  }
+}
+/* L3：传染格子抽搐 */
+.excel-shell[data-live-level='3'] .lv-infected {
+  animation: lv-glitch 900ms steps(2) infinite;
+}
+.excel-shell[data-live-level='3'] .lv-infected.lv-fresh {
+  animation:
+    lv-infect 380ms steps(4) both,
+    lv-glitch 900ms steps(2) 400ms infinite;
+}
+@keyframes lv-glitch {
+  50% {
+    transform: translateX(2px);
+    filter: hue-rotate(40deg);
+  }
+}
+/* 退去：先被刷绿再消失，按列错开跟着擦除波从左往右走 */
+.lv-infected.lv-leaving,
+.excel-shell[data-live-level='3'] .lv-infected.lv-leaving {
+  animation: lv-recede 420ms ease-in calc(var(--lv-col, 0) * 45ms) both;
+}
+@keyframes lv-recede {
+  40% {
+    background: var(--xlsx-ok-bg);
+    color: var(--xlsx-ok-fg);
+    transform: none;
+  }
+  100% {
+    background: var(--xlsx-ok-bg);
+    color: transparent;
+    opacity: 0;
+    transform: scaleY(0.3);
+  }
+}
+
+/* ---- L3：列标变成 #REF! ---- */
+.lv-ref-header {
+  position: absolute;
+  top: 0;
+  height: var(--row-h);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--xlsx-err-fg);
+  color: #fff;
+  font: 700 12px/1 Consolas, 'Courier New', monospace;
+  border-right: 1px solid rgba(255, 255, 255, 0.25);
+  animation: lv-infect 380ms steps(4) both;
+}
+
+/* ---- 拆除：绿色擦除波扫过该行 +「已拆 ✓」盖章 ---- */
+.lv-sweep {
+  position: absolute;
+  left: var(--row-header-w);
+  right: 0;
+  height: var(--row-h);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+/* 刷绿：从左往右擦净整行，停留后淡出 */
+.lv-sweep::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--xlsx-ok-bg);
+  mix-blend-mode: multiply;
+  animation: lv-wipe 1600ms ease-out both;
+}
+/* 擦除波的亮边 */
+.lv-sweep::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 8%;
+  background: linear-gradient(90deg, transparent, #2fbf63, transparent);
+  animation: lv-wipe-edge 480ms ease-out both;
+}
+@keyframes lv-wipe {
+  0% {
+    clip-path: inset(0 100% 0 0);
+  }
+  30% {
+    clip-path: inset(0 0 0 0);
+    opacity: 1;
+  }
+  75% {
+    opacity: 1;
+  }
+  100% {
+    clip-path: inset(0 0 0 0);
+    opacity: 0;
+  }
+}
+@keyframes lv-wipe-edge {
+  from {
+    left: -8%;
+  }
+  to {
+    left: 100%;
+    opacity: 0;
+  }
+}
+.lv-stamp {
+  position: relative;
+  padding: 0 14px;
+  border: 3px solid var(--xlsx-ok-fg);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.85);
+  color: var(--xlsx-ok-fg);
+  font: 800 22px/1.2 'Segoe UI', 'Microsoft YaHei', system-ui, sans-serif;
+  white-space: nowrap;
+  transform: rotate(-8deg);
+  animation: lv-stamp 1600ms cubic-bezier(0.3, 1.6, 0.5, 1) both;
+}
+@keyframes lv-stamp {
+  0%,
+  12% {
+    transform: rotate(-8deg) scale(2.4);
+    opacity: 0;
+  }
+  24% {
+    transform: rotate(-8deg) scale(1);
+    opacity: 1;
+  }
+  80% {
+    transform: rotate(-8deg) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: rotate(-8deg) scale(1);
+    opacity: 0;
+  }
+}
+
+/* ---- L3「未响应」：窗口边缘红色脉冲 + 白雾 + 忙碌光标 ---- */
+/* Excel 窗口容器不定位（#29），fixed 相对视口：盖住任务栏以上的 Excel 区域；
+   低于后台视图(450)/系统广播(500)/聊天/Toast */
+.lv-alarm {
+  position: fixed;
+  inset: 0 0 48px 0;
+  z-index: 400;
+  pointer-events: none;
+  background: rgba(255, 255, 255, 0.3);
+  animation: lv-haze-in 600ms ease-out both;
+}
+.lv-alarm::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  box-shadow:
+    inset 0 0 0 4px rgba(204, 0, 0, 0.75),
+    inset 0 0 90px rgba(204, 0, 0, 0.38);
+  animation: lv-pulse 0.9s ease-in-out infinite alternate;
+}
+@keyframes lv-haze-in {
+  from {
+    background: rgba(255, 255, 255, 0);
+  }
+}
+@keyframes lv-pulse {
+  to {
+    opacity: 0.35;
+  }
+}
+.excel-shell[data-live-level='3'],
+.excel-shell[data-live-level='3'] * {
+  cursor: progress !important;
+}
+.titlebar .title-not-responding {
+  margin-left: 0.4em;
+  font-weight: 700;
+}
+
+/* ---- 减少动态：去掉位移/缩放/闪烁，只保留淡入淡出 ---- */
+@media (prefers-reduced-motion: reduce) {
+  .lv-infected.lv-fresh,
+  .lv-ref-header,
+  .lv-stamp,
+  .lv-alarm,
+  .lv-alarm::before,
+  .excel-shell[data-live-level='3'] .lv-infected,
+  .excel-shell[data-live-level='3'] .lv-infected.lv-fresh {
+    animation: none;
+  }
+  .lv-sweep::before {
+    animation: lv-fade-out 1600ms linear both;
+  }
+  .lv-infected.lv-leaving,
+  .excel-shell[data-live-level='3'] .lv-infected.lv-leaving {
+    animation: lv-fade-out 420ms linear both;
+  }
+  .lv-sweep::after {
+    display: none;
+  }
+}
+@keyframes lv-fade-out {
+  to {
+    opacity: 0;
+  }
+}

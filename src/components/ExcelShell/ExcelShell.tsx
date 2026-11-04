@@ -12,6 +12,7 @@ import { SheetTabs } from './SheetTabs'
 import { StatusBar } from './StatusBar'
 import { SystemBroadcast } from './SystemBroadcast'
 import { TitleBar } from './TitleBar'
+import { useLiveLevel } from '../liveSheet/useLiveSheet'
 
 /**
  * 高仿 Excel 2016 的游戏外壳。
@@ -23,6 +24,8 @@ import { TitleBar } from './TitleBar'
 export function ExcelShell() {
   const activeSheet = useGameStore((s) => s.activeSheet)
   const toggleSheet = useGameStore((s) => s.toggleSheet)
+  // 活表格（#48，v2）：危险分级挂到外壳上供 CSS 用；v2 关闭时为 null，不加任何属性
+  const liveLevel = useLiveLevel()
   // 切换方向：sheet1→sheet2 前向（左入），sheet2→sheet1 后向（右入）
   const prevSheet = useRef(activeSheet)
   const [slideDir, setSlideDir] = useState<'fwd' | 'back'>('fwd')
@@ -43,8 +46,8 @@ export function ExcelShell() {
   }, [toggleSheet])
 
   return (
-    <div className="excel-shell">
-      <TitleBar />
+    <div className="excel-shell" data-live-level={liveLevel ?? undefined}>
+      <TitleBar notResponding={liveLevel === 3} />
       <Ribbon />
       <div className="formula-bar-anchor">
         <FormulaBar />
@@ -60,6 +63,8 @@ export function ExcelShell() {
       <StatusBar />
       <SystemBroadcast />
       <Backstage />
+      {/* L3「未响应」：窗口边缘红色脉冲 + 白雾（fixed，放在 sheet-pane 外，不受滑动 transform 影响） */}
+      {liveLevel === 3 && <div className="lv-alarm" aria-hidden="true" />}
     </div>
   )
 }

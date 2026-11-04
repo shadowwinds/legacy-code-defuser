@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import type { CSSProperties, KeyboardEvent as ReactKeyboardEvent } from 'react'
 import { useGameStore } from '../../store'
+import { liveSheetEnabled } from '../liveSheet/useLiveSheet'
 import {
   EDGE_A_SEC,
   EDGE_A_THRESHOLD_MS,
@@ -44,6 +45,7 @@ export function Row4GOverlay() {
   const imbalanceSince = useGameStore((s) => s.imbalanceSince)
   const lazyEggSeq = useGameStore((s) => s.lazyEggSeq)
   const lazyEggCell = useGameStore((s) => s.lazyEggCell)
+  const dColWidth = useGameStore((s) => s.dColWidth)
 
   const [editing, setEditing] = useState<EditingState | null>(null)
   const [eggVisible, setEggVisible] = useState(false)
@@ -103,8 +105,10 @@ export function Row4GOverlay() {
     }
   }
 
+  // G 列左边界：v2 活表格计入可变的 D 列宽（宽列下差值很大）；v1 保持线上位置（按 6 个等宽列算）
+  const dColW = liveSheetEnabled() ? `${dColWidth}px` : 'var(--col-w)'
   const containerStyle: CSSProperties = {
-    left: `calc(var(--row-header-w) + var(--col-w) * ${G_COL - 1})`,
+    left: `calc(var(--row-header-w) + var(--col-w) * ${G_COL - 2} + ${dColW})`,
     top: 'var(--row-h)',
     width: 'var(--col-w)',
     height: `calc(var(--row-h) * 8)`,

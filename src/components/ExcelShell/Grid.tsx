@@ -10,6 +10,8 @@ import { Row4GOverlay } from '../modules/Row4GOverlay'
 import { TrackerOverlay } from './TrackerOverlay'
 import { Row5Module } from '../modules/Row5Module'
 import { Row1Module } from '../modules/Row1Module'
+import { LiveSheetLayer } from '../liveSheet/LiveSheetLayer'
+import { geometryVars, liveSheetEnabled, useSheetGeometry } from '../liveSheet/useLiveSheet'
 
 /** D 列宽拖拽范围（px） */
 const D_COL_MIN_PX = 48
@@ -71,6 +73,9 @@ export function Grid() {
   const frozenRowsUntil = useGameStore((s) => s.frozenRowsUntil)
   // Row1（issue #9）：A1 #结构损坏! 故障角标
   const structureBroken = useGameStore((s) => s.structureBroken)
+  // 活表格（#48，v2）：宽列铺满屏幕，网格尺寸变量写在 .grid-wrap 上
+  const liveSheet = liveSheetEnabled()
+  const geometry = useSheetGeometry()
 
   // Row8 禁操行：点击全场 -30s，1s 防抖 + 短暂红闪
   const [row8Flash, setRow8Flash] = useState(false)
@@ -151,7 +156,10 @@ export function Grid() {
   }
 
   return (
-    <div className="grid-wrap">
+    <div
+      className={`grid-wrap${liveSheet ? ' live-sheet' : ''}`}
+      style={liveSheet ? geometryVars(geometry) : undefined}
+    >
       <div
         className="grid"
         style={{
@@ -275,6 +283,7 @@ export function Grid() {
           )
         })}
 
+        {liveSheet && <LiveSheetLayer />}
         <div className="selection-frame" style={frameStyle} />
         <Row4GOverlay />
         <TrackerOverlay />
