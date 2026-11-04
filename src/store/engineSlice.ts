@@ -3,6 +3,7 @@ import type { RootState } from './index'
 import { createInitialModules, pickPasscodeIndex } from '../lib/randomizer'
 import { getRunConfig, runStream } from '../lib/seed'
 import { createSituation, type Situation } from '../rules/situation'
+import { row3Appearance } from '../rules/modules/row3'
 
 /** 全局引信总时长（秒）：16:56:00 → 17:00:00 */
 export const FUSE_INITIAL_SEC = 240
@@ -84,7 +85,10 @@ export const createEngineSlice: StateCreator<RootState, [], [], EngineState> = (
   endReason: null,
   seed: getRunConfig().seed,
   situation: createSituation(getRunConfig().seed),
-  passcodeIndex: pickPasscodeIndex(runStream('passcode')),
+  // v2：口令从 12 行附录 A 抽（GDD 07 §7.3 Row3）；v1 沿用 5 行
+  passcodeIndex: getRunConfig().v2
+    ? row3Appearance(getRunConfig().seed).index
+    : pickPasscodeIndex(runStream('passcode')),
   frozenRowsUntil: {},
   gameStartedAt: null,
 

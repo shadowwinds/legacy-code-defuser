@@ -1,6 +1,8 @@
 import type { StateCreator } from 'zustand'
 import type { RootState } from './index'
 import { PASSCODES } from '../data/passcodes'
+import { getRunConfig } from '../lib/seed'
+import { passcodeTable, row3Cell, type Row3Cell } from '../rules/modules/row3'
 
 /** Row3 乱码考古三阶段状态机（GDD 02 §2.3）：拉列宽 → 切格式 → 填口令 */
 export type Row3Stage = 'narrow' | 'revealed' | 'formatted' | 'solved'
@@ -32,6 +34,10 @@ export interface Row3State {
   formatMode: Row3FormatMode
   /** 填错锁：true = 口令填错过，倒计时已锁在 5s，须填对解锁 */
   wrongLock: boolean
+  /** 口令填对的格子（拆除后回显用） */
+  row3SolvedCell: Row3Cell | null
+  /** 最近一次填错的格子（#VALUE! 只标在这一格） */
+  row3WrongCell: Row3Cell | null
   /** 拖拽设置 D 列宽；narrow 态拉过阈值 → revealed */
   setDColWidth: (w: number) => void
   /** 切换数字格式；revealed 态切 shortDate → formatted */
@@ -40,8 +46,9 @@ export interface Row3State {
    * 提交口令（读本局 passcodes[passcodeIndex] 宽容比对）。
    * 对 → defuseModule(3) + stage solved + 清填错锁；
    * 错 → Row3 扣到剩 5s + freezeRow 锁倒计时 + wrongLock=true。
+   * v2：还要填对格子（版本号单数 F3 / 双数 H3），填错格子同填错口令。
    */
-  submitPasscode: (text: string) => 'correct' | 'wrong'
+  submitPasscode: (text: string, cell?: Row3Cell) => 'correct' | 'wrong'
 }
 
 export const createRow3Slice: StateCreator<RootState, [], [], Row3State> = (set, get) => ({
@@ -49,6 +56,8 @@ export const createRow3Slice: StateCreator<RootState, [], [], Row3State> = (set,
   dColWidth: 72,
   formatMode: 'general',
   wrongLock: false,
+  row3SolvedCell: null,
+  row3WrongCell: null,
 
   setDColWidth: (w) => {
     const s = get()
@@ -62,22 +71,24 @@ export const createRow3Slice: StateCreator<RootState, [], [], Row3State> = (set,
     set({ formatMode: m, stage })
   },
 
-  submitPasscode: (text) => {
+  submitPasscode: (text, cell = 'F3') => {
     const s = get()
     if (s.status !== 'playing') return 'wrong'
-    const entry = PASSCODES[s.passcodeIndex]
-    if (normalize(text) !== normalize(entry.passcode)) {
+    const v2 = getRunConfig().v2
+    const entry = passcodeTable(v2, PASSCODES)[s.passcodeIndex]
+    const cellOk = !v2 || cell === row3Cell(s.situation)
+    if (!cellOk || normalize(text) !== normalize(entry.passcode)) {
       // 填错：Row3 扣到剩 5s（clamp ≥ 0，不会触爆）+ 冻结倒计时 + 填错锁
       window.dispatchEvent(new CustomEvent('lcd:penalty', { detail: { row: ROW3, sec: 5, source: 'row3:wrong' } }))
       const sec = Math.max(0, s.modules[ROW3 - 1].remaining - 5)
       s.penalizeRow(ROW3, sec)
       s.freezeRow(ROW3, 9999999)
-      set({ wrongLock: true })
+      set({ wrongLock: true, row3WrongCell: cell })
       return 'wrong'
     }
     // 填对（含填错后改对）：拆除后 tick 跳过该行，冻结自然失效
     s.defuseModule(ROW3)
-    set({ stage: 'solved', wrongLock: false })
+    set({ stage: 'solved', wrongLock: false, row3SolvedCell: cell, row3WrongCell: null })
     return 'correct'
   },
 })

@@ -4,6 +4,7 @@ import { GRID_ROWS } from '../../data/gridRows'
 import { PASSCODES } from '../../data/passcodes'
 import { COL_COUNT, colLetter } from '../../lib/grid'
 import { getRunConfig } from '../../lib/seed'
+import { passcodeTable, type Row3Cell } from '../../rules/modules/row3'
 import { useGameStore } from '../../store'
 import { Comment } from './Comment'
 import { DataBar } from './DataBar'
@@ -19,20 +20,23 @@ const D_COL_MIN_PX = 48
 const D_COL_MAX_PX = 480
 
 /** F3 口令输入框（stage formatted 后出现；填错锁期间可继续输入；solved 后只读回显口令） */
-function Row3PasscodeCell() {
+function Row3PasscodeCell({ cell = 'F3' }: { cell?: Row3Cell }) {
   const stage = useGameStore((s) => s.stage)
-  const wrongLock = useGameStore((s) => s.wrongLock)
+  const wrongLock = useGameStore((s) => s.wrongLock && s.row3WrongCell === cell)
   const status = useGameStore((s) => s.status)
   const submitPasscode = useGameStore((s) => s.submitPasscode)
-  const passcode = useGameStore((s) => PASSCODES[s.passcodeIndex].passcode)
+  const passcode = useGameStore((s) => passcodeTable(getRunConfig().v2, PASSCODES)[s.passcodeIndex].passcode)
+  const solvedCell = useGameStore((s) => s.row3SolvedCell)
   const [text, setText] = useState('')
   const solved = stage === 'solved'
+  // v2 两个输入框（F3/H3）：拆除后只有填对的那格回显口令
+  const echo = solved && solvedCell === cell
   return (
     <div className={`f3-passcode${wrongLock ? ' wrong' : ''}`}>
       {wrongLock && <span className="f3-error">#VALUE!</span>}
       <input
         className="f3-input"
-        value={solved ? passcode : text}
+        value={echo ? passcode : solved ? '' : text}
         placeholder={solved ? '' : '输入口令'}
         readOnly={solved}
         disabled={status !== 'playing'}
@@ -40,7 +44,7 @@ function Row3PasscodeCell() {
         onChange={(e) => setText(e.target.value)}
         onKeyDown={(e) => {
           if (e.key !== 'Enter' || solved || status !== 'playing') return
-          submitPasscode(text)
+          submitPasscode(text, cell)
           setText('')
         }}
       />
@@ -128,7 +132,7 @@ export function Grid() {
       }
 
   // D3 显示：narrow=####；revealed=序列值；formatted/solved 按格式显示日期/序列值
-  const passcodeEntry = PASSCODES[passcodeIndex]
+  const passcodeEntry = passcodeTable(v2, PASSCODES)[passcodeIndex]
   const d3Text =
     stage === 'narrow'
       ? '####'
@@ -222,11 +226,11 @@ export function Grid() {
               col += 1
               continue
             }
-            if (r.row === 3 && col === 6 && passcodeVisible) {
+            if (r.row === 3 && (col === 6 || (v2 && col === 8)) && passcodeVisible) {
               // F3 口令输入框：阶段③填口令
               cells.push(
                 <div key={c} className={cls} data-row={r.row} onClick={() => selectCell(r.row, c)}>
-                  <Row3PasscodeCell />
+                  <Row3PasscodeCell cell={col === 6 ? 'F3' : 'H3'} />
                 </div>,
               )
               col += 1
