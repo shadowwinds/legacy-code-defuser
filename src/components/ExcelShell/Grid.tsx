@@ -3,6 +3,7 @@ import type { CSSProperties, PointerEvent as ReactPointerEvent } from 'react'
 import { GRID_ROWS } from '../../data/gridRows'
 import { PASSCODES } from '../../data/passcodes'
 import { COL_COUNT, colLetter } from '../../lib/grid'
+import { getRunConfig } from '../../lib/seed'
 import { useGameStore } from '../../store'
 import { Comment } from './Comment'
 import { DataBar } from './DataBar'
@@ -71,6 +72,8 @@ export function Grid() {
   const frozenRowsUntil = useGameStore((s) => s.frozenRowsUntil)
   // Row1（issue #9）：A1 #结构损坏! 故障角标
   const structureBroken = useGameStore((s) => s.structureBroken)
+  const row1Code = useGameStore((s) => s.row1Code)
+  const v2 = getRunConfig().v2
 
   // Row8 禁操行：点击全场 -30s，1s 防抖 + 短暂红闪
   const [row8Flash, setRow8Flash] = useState(false)
@@ -232,7 +235,7 @@ export function Grid() {
                     row2Blocked ? undefined : isRow8 ? handleRow8Click : () => selectCell(r.row, 1)
                   }
                 >
-                  <span className="a1-broken">{r.row === 1 && structureBroken ? '#结构损坏!' : ''}</span>
+                  <span className="a1-broken">{r.row === 1 && structureBroken ? (v2 ? row1Code : '#结构损坏!') : ''}</span>
                   <span>{r.text}</span>
                   {r.comment ? <Comment text={r.comment} /> : null}
                 </div>,

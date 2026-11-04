@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { useGameStore } from '../../store'
 import type { Row1Option } from '../../store/row1Slice'
+import { getRunConfig } from '../../lib/seed'
+import { ROW1_OPTION_LABELS } from '../../rules/modules/row1'
 import './row1.css'
 
 /** 批注泡自动消失时长（ms） */
@@ -15,7 +17,9 @@ export function Row1Module() {
   const structureBroken = useGameStore((s) => s.structureBroken)
   const defused = useGameStore((s) => s.modules[0]?.defused ?? false)
   const chooseOption = useGameStore((s) => s.chooseOption)
+  const row1Code = useGameStore((s) => s.row1Code)
   const [trapPopVisible, setTrapPopVisible] = useState(false)
+  const v2 = getRunConfig().v2
 
   if (!structureBroken || defused) return null
 
@@ -35,10 +39,20 @@ export function Row1Module() {
           }
         }}
       >
-        <option value="">#结构损坏!</option>
-        <option value="split-fill">[拆分并填充值]</option>
-        <option value="force-write">[保留合并强行写入]</option>
-        <option value="merge-center">[合并后居中]</option>
+        <option value="">{v2 ? row1Code : '#结构损坏!'}</option>
+        {v2 ? (
+          (Object.keys(ROW1_OPTION_LABELS) as Row1Option[]).map((o) => (
+            <option key={o} value={o}>
+              {ROW1_OPTION_LABELS[o]}
+            </option>
+          ))
+        ) : (
+          <>
+            <option value="split-fill">[拆分并填充值]</option>
+            <option value="force-write">[保留合并强行写入]</option>
+            <option value="merge-center">[合并后居中]</option>
+          </>
+        )}
       </select>
       {trapPopVisible ? (
         <span className="row1-trap-pop">2014 年有人这么干过，这就是这张表长这样的原因。</span>
