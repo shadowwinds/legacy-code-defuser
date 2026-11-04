@@ -1,5 +1,5 @@
 import { useGameStore } from '../../store'
-import { liveSheetEnabled, useSheetGeometry } from '../liveSheet/useLiveSheet'
+import { useSheetGeometry } from '../liveSheet/useLiveSheet'
 
 /*
  * 网格几何取自 useSheetGeometry（SVG 路径数据无法使用 CSS calc，与 CSS 变量同一来源）：
@@ -20,9 +20,8 @@ export function TrackerOverlay() {
 
   if (!imbalanced || selectedRow !== 4 || selectedCol !== null) return null
 
-  // E 列（第 5 列）左边界：v2 计入可变的 D 列宽；v1 保持线上位置（按 4 个等宽列算）
-  const dW = liveSheetEnabled() ? dColWidth : colW
-  const eLeft = rowHeaderW + colW * 3 + dW
+  // E 列（第 5 列）左边界：A–C 等宽 + 可变的 D 列宽（row3Slice.dColWidth，与 Grid 的 gridTemplateColumns 同源）
+  const eLeft = rowHeaderW + colW * 3 + dColWidth
   /** 行 N 中心 y（.gh 表头行占第 0 行，数据行 N 从 y = rowH * N 开始） */
   const rowCenterY = (row: number) => rowH * row + rowH / 2
 
