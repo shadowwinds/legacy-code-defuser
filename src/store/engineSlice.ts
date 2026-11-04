@@ -2,6 +2,7 @@ import type { StateCreator } from 'zustand'
 import type { RootState } from './index'
 import { createInitialModules, pickPasscodeIndex } from '../lib/randomizer'
 import { getRunConfig, runStream } from '../lib/seed'
+import { createSituation, type Situation } from '../rules/situation'
 
 /** 全局引信总时长（秒）：16:56:00 → 17:00:00 */
 export const FUSE_INITIAL_SEC = 240
@@ -41,6 +42,8 @@ export interface EngineState {
   endReason: string | null
   /** 本局种子（【文件 → 信息】展示；`?seed=` 可重放） */
   seed: string
+  /** 本局局面：外壳变量 + 时间场景 + 噪声字段（GDD 07 §7.2；v2 规则读它） */
+  situation: Situation
   /** 本局生效的口令附录行下标（0–4，Row3 后续票接 UI） */
   passcodeIndex: number
   /** 行号 → 冻结截止 epoch ms；冻结期间该行倒计时暂停（fill: 冻结窗格/填错锁） */
@@ -80,6 +83,7 @@ export const createEngineSlice: StateCreator<RootState, [], [], EngineState> = (
   status: 'playing',
   endReason: null,
   seed: getRunConfig().seed,
+  situation: createSituation(getRunConfig().seed),
   passcodeIndex: pickPasscodeIndex(runStream('passcode')),
   frozenRowsUntil: {},
   gameStartedAt: null,

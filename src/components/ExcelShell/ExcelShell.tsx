@@ -5,6 +5,7 @@ import './excelShell.css'
 import '../modules/row3.css'
 import { Backstage } from './Backstage'
 import { FormulaBar } from './FormulaBar'
+import { MacroWarningBar } from './MacroWarningBar'
 import { Grid } from './Grid'
 import { ManualSheet } from './ManualSheet'
 import { Ribbon } from './Ribbon'
@@ -46,6 +47,7 @@ export function ExcelShell() {
     <div className="excel-shell">
       <TitleBar />
       <Ribbon />
+      <MacroWarningBar />
       <div className="formula-bar-anchor">
         <FormulaBar />
         <FormatSelect />

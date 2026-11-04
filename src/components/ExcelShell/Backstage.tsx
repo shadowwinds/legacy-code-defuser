@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { replaySearch } from '../../lib/seed'
+import { workbookName } from '../../rules/situation'
 import { useGameStore } from '../../store'
 import './backstage.css'
 
@@ -7,12 +8,14 @@ const MENU = ['信息', '新建', '打开', '保存', '另存为', '打印', '�
 
 /**
  * 【文件 → 信息】后台视图（Excel 2016 Backstage 拟真，地图 #39 已钉决策 5、7）。
- * 打开时游戏照跑（同 Sheet2）。当前只展示本局种子；外壳变量清单定稿后往「属性」里填。
+ * 打开时游戏照跑（同 Sheet2）。「属性」展示作者（外壳变量 A）、噪声字段与本局种子（GDD 07 §7.2）。
  */
 export function Backstage() {
   const open = useGameStore((s) => s.backstageOpen)
   const setBackstage = useGameStore((s) => s.setBackstage)
   const seed = useGameStore((s) => s.seed)
+  const situation = useGameStore((s) => s.situation)
+  const { noise } = situation
   const [copied, setCopied] = useState(false)
 
   useEffect(() => {
@@ -48,7 +51,7 @@ export function Backstage() {
       </nav>
       <main className="backstage-main">
         <h1>信息</h1>
-        <div className="backstage-file">核心业务_最终版_打死勿动.xlsx</div>
+        <div className="backstage-file">{workbookName(situation)}</div>
         <div className="backstage-cols">
           <section className="backstage-card">
             <div className="backstage-card-icon" aria-hidden="true">🔒</div>
@@ -60,6 +63,20 @@ export function Backstage() {
           <aside className="backstage-props">
             <h2>属性 ▾</h2>
             <dl>
+              <dt>大小</dt>
+              <dd>{noise.fileSizeKb.toLocaleString('en-US')} KB</dd>
+              <dt>标题</dt>
+              <dd>核心业务</dd>
+              <dt>标记</dt>
+              <dd>{noise.tag}</dd>
+              <dt>修订次数</dt>
+              <dd>{noise.revisions}</dd>
+              <dt>上次修改</dt>
+              <dd>{noise.lastModified}</dd>
+              <dt>作者</dt>
+              <dd className="backstage-author">{situation.author}</dd>
+              <dt>公司</dt>
+              <dd>{noise.company}</dd>
               <dt>本局编号</dt>
               <dd className="backstage-seed">{seed}</dd>
             </dl>
