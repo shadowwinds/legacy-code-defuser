@@ -202,6 +202,13 @@
   border-right: 1px solid #e0e0e0;
   border-bottom: 1px solid #e0e0e0;
 }
+/* 列标题吸顶（真 Excel 行为）：网格比视口高一行时会被滚走，D/E 分界线（第 3 行拆弹入口）就跟着消失了。
+ * z-index 5：盖住选中框(2)/追踪箭头(3)/批注角标(4)，但低于 D 列拖拽条(6)，标题里的分界线照样能拖。 */
+.gh {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+}
 .rh {
   cursor: pointer;
 }
