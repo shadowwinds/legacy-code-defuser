@@ -3,11 +3,13 @@ import workplaceChatIcon from '../../assets/icons/workplace-chat.png'
 import { useDesktopStore } from '../../desktop/desktopStore'
 import { getTooltip } from '../../desktop/dialogues'
 import { formatFuseClock } from '../../lib/clock'
+import { runSceneCopy } from '../../rules/sceneCopy'
 import { useGameStore } from '../../store'
 
 /** 秒级时钟订阅，避免引擎每个 tick 都重渲染任务栏。 */
 export function Taskbar() {
-  const clock = useGameStore((s) => formatFuseClock(s.fuseRemaining))
+  const scene = runSceneCopy()
+  const clock = useGameStore((s) => formatFuseClock(s.fuseRemaining, scene.deadlineHour))
   const unread = useDesktopStore((s) => s.unread.boss + s.unread.hr + s.unread.wang)
   const chatOpen = useDesktopStore((s) => s.chatOpen)
 
@@ -33,7 +35,7 @@ export function Taskbar() {
       <div className="tb-app" aria-hidden="true">📁</div>
       <div className="tb-clock">
         <b>{clock}</b>
-        <small>2026/10/24 周五</small>
+        <small>{scene.dateLabel}</small>
       </div>
     </div>
   )

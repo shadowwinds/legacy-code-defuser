@@ -3,9 +3,10 @@ import type { RootState } from './index'
 import { createInitialModules, pickPasscodeIndex } from '../lib/randomizer'
 import { getRunConfig, runStream } from '../lib/seed'
 import { createSituation, type Situation } from '../rules/situation'
+import { runSceneCopy } from '../rules/sceneCopy'
 import { row3Appearance } from '../rules/modules/row3'
 
-/** 全局引信总时长（秒）：16:56:00 → 17:00:00 */
+/** 全局引信总时长（秒）：v1 16:56:00 → 17:00:00；v2 截止钟点前 4 分钟 → 截止（#55） */
 export const FUSE_INITIAL_SEC = 240
 
 /** 各模块基准倒计时（秒），下标 = 行号 - 1（GDD §2.8：80/70/90/60/100，±10% 抖动在 randomizer） */
@@ -71,8 +72,9 @@ export interface EngineState {
 let lastTickAt = Date.now()
 
 const explode = (row: number) => `${MODULE_NAMES[row]} 当场爆炸。`
-const FUSE_REASON = '17:00 了，引信烧完，全表爆炸。'
-const WIN_REASON = '17:00 准点跑路，下班！'
+/** 结局原因按时间场景改写（#55）；v2 关闭时为「17:00 …」原文 */
+const FUSE_REASON = runSceneCopy().fuseReason
+const WIN_REASON = runSceneCopy().winReason
 
 /** 单次 tick 的 delta 上限（秒）：页面失活被浏览器节流后，回前台累积 delta 一次性
  * 结算会瞬扣数十秒直接引爆（#23）。clamp 后后台时间最多按真实秒走，前台 100ms tick 不受影响。 */

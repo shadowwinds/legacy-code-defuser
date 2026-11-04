@@ -9,6 +9,10 @@ const ID_RE = /^(sb|ep|ed_(win|fuse|row[1-5])|egg)_[a-z0-9_]+$/
 const CONTACTS = ['boss', 'hr', 'wang', 'system', 'player']
 const EVENTS = ['first_manual_switch', 'first_edge_a', 'row5_stuck', 'row5_stuck_repeat', 'fuse_60s', 'fuse_30s', 'first_defuse', 'skill_format_brush', 'skill_freeze_pane', 'row8_trap']
 const ENDINGS = ['win', 'fuse', 'row1', 'row2', 'row3', 'row4', 'row5']
+// 时间场景（#55）：占位符与 src/rules/sceneCopy.ts DIALOGUE_PLACEHOLDERS 一致；场景 id 与 src/rules/situation.ts SCENES 一致
+const PLACEHOLDERS = ['date', 'weekday', 'introTime', 'deadline', 'workbook', 'row4Target']
+const SCENE_IDS = ['fri-close', 'wed-release', 'sat-review', 'sun-eve']
+const badPlaceholders = (text) => [...text.matchAll(/\{(\w+)\}/g)].map((x) => x[1]).filter((k) => !PLACEHOLDERS.includes(k))
 
 for (const [i, m] of (data.messages ?? []).entries()) {
   const at = `messages[${i}](${m.id ?? '?'})`
@@ -17,6 +21,16 @@ for (const [i, m] of (data.messages ?? []).entries()) {
   ids.add(m.id)
   if (!CONTACTS.includes(m.contact)) errors.push(`${at}: contact 非法`)
   if (!m.text || m.text.length > 80) errors.push(`${at}: text 缺失或超 80 字`)
+  for (const k of badPlaceholders(m.text ?? '')) errors.push(`${at}: 未知占位符 {${k}}`)
+  if (m.sceneText !== undefined) {
+    if (typeof m.sceneText !== 'object' || m.sceneText === null) errors.push(`${at}: sceneText 必须是对象`)
+    else
+      for (const [sid, st] of Object.entries(m.sceneText)) {
+        if (!SCENE_IDS.includes(sid)) errors.push(`${at}: sceneText 场景 ${sid} 非法`)
+        if (typeof st !== 'string' || !st || st.length > 80) errors.push(`${at}: sceneText.${sid} 缺失或超 80 字`)
+        else for (const k of badPlaceholders(st)) errors.push(`${at}: sceneText.${sid} 未知占位符 {${k}}`)
+      }
+  }
   const t = m.trigger ?? {}
   if (t.type === 'event' && !EVENTS.includes(t.event)) errors.push(`${at}: 事件锚非法`)
   if (t.type === 'time' && typeof t.atSec !== 'number') errors.push(`${at}: 时间锚缺 atSec`)

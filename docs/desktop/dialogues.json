@@ -2,7 +2,7 @@
   "version": "1.0.0",
   "_provenance_note": "全部条目为 agent 代拟占位(issues #17 流程第 4 步),每条 _provenance: agent-draft;用户转发 DeepSeek 产出后逐条替换并改为 deepseek。",
   "messages": [
-    { "id": "sb_01", "category": "storyboard", "contact": "system", "text": "2026-10-24 周五 16:53 · 你的工位", "trigger": { "type": "static" }, "orderInGroup": 1, "effects": { "sound": "none", "badge": false }, "_provenance": "agent-draft" },
+    { "id": "sb_01", "category": "storyboard", "contact": "system", "text": "{date} {weekday} {introTime} · 你的工位", "sceneText": { "wed-release": "{date} {weekday} {introTime} · 发版作战室", "sat-review": "{date} {weekday} {introTime} · 甲方会议室", "sun-eve": "{date} {weekday} {introTime} · 你家沙发(VPN 已连)" }, "trigger": { "type": "static" }, "orderInGroup": 1, "effects": { "sound": "none", "badge": false }, "_provenance": "agent-draft" },
     { "id": "sb_02", "category": "storyboard", "contact": "wang", "text": "这表你先顶着。宏我改不动,也不想改。", "trigger": { "type": "static" }, "orderInGroup": 2, "effects": { "sound": "none", "badge": false }, "_provenance": "agent-draft" },
     { "id": "sb_03", "category": "storyboard", "contact": "player", "text": "王哥,连生产库的这个 VBA……出了事谁背?", "trigger": { "type": "static" }, "orderInGroup": 3, "effects": { "sound": "none", "badge": false }, "_provenance": "agent-draft" },
     { "id": "sb_04", "category": "storyboard", "contact": "system", "text": "对方开启了朋友验证。", "trigger": { "type": "static" }, "orderInGroup": 4, "effects": { "sound": "none", "badge": false }, "_provenance": "agent-draft" },
@@ -11,7 +11,7 @@
     { "id": "sb_07", "category": "storyboard", "contact": "system", "text": "消息已发出,但被对方拒收了。", "trigger": { "type": "static" }, "orderInGroup": 7, "effects": { "sound": "none", "badge": false }, "_provenance": "agent-draft" },
     { "id": "sb_08", "category": "storyboard", "contact": "system", "text": "【系统提示】您的离职交接人已将您拉黑。", "trigger": { "type": "static" }, "orderInGroup": 8, "effects": { "sound": "none", "badge": false }, "_provenance": "agent-draft" },
     { "id": "sb_09", "category": "storyboard", "contact": "player", "text": "……先拆表,再拆人。", "trigger": { "type": "static" }, "orderInGroup": 9, "effects": { "sound": "none", "badge": false }, "_provenance": "agent-draft" },
-    { "id": "sb_10", "category": "storyboard", "contact": "system", "text": "双击 Excel,打开「核心业务_最终版_打死勿动.xlsx」", "trigger": { "type": "static" }, "orderInGroup": 10, "effects": { "sound": "none", "badge": false }, "_provenance": "agent-draft" },
+    { "id": "sb_10", "category": "storyboard", "contact": "system", "text": "双击 Excel,打开「{workbook}」", "trigger": { "type": "static" }, "orderInGroup": 10, "effects": { "sound": "none", "badge": false }, "_provenance": "agent-draft" },
 
     { "id": "ep_first_manual_switch", "category": "push", "contact": "boss", "text": "翻什么文档!我花钱是让你修表的,不是让你读书的!", "trigger": { "type": "event", "event": "first_manual_switch" }, "orderInGroup": 1, "interruptible": false, "effects": { "sound": "ding", "badge": true }, "_provenance": "agent-draft" },
     { "id": "ep_first_edge_a", "category": "push", "contact": "boss", "text": "什么连锁反应?我不管!尾款只认结果!", "trigger": { "type": "event", "event": "first_edge_a" }, "orderInGroup": 2, "interruptible": true, "effects": { "sound": "ding", "badge": true }, "_provenance": "agent-draft" },
@@ -26,9 +26,9 @@
 
     { "id": "ed_win_01", "category": "ending", "contact": "boss", "text": "等等……全绿了?你什么时候修好的?!", "trigger": { "type": "ending", "ending": "win" }, "orderInGroup": 1, "effects": { "sound": "ding", "badge": true }, "_provenance": "agent-draft" },
     { "id": "ed_win_02", "category": "ending", "contact": "boss", "text": "算了,尾款的事……下周复盘会上再说。", "trigger": { "type": "ending", "ending": "win" }, "orderInGroup": 2, "effects": { "sound": "none", "badge": true }, "_provenance": "agent-draft" },
-    { "id": "ed_win_03", "category": "ending", "contact": "hr", "text": "下班打卡打了嘛?今天可是周五哦~周末愉快!", "trigger": { "type": "ending", "ending": "win" }, "orderInGroup": 3, "effects": { "sound": "none", "badge": true }, "_provenance": "agent-draft" },
+    { "id": "ed_win_03", "category": "ending", "contact": "hr", "text": "下班打卡打了嘛?今天可是周五哦~周末愉快!", "sceneText": { "wed-release": "发版辛苦啦~打车票记得走报销流程,22 点后才能报哦~", "sat-review": "周末验收辛苦啦~调休申请记得提前三天提交哦~", "sun-eve": "这么晚还在呀~明早九点例会,别迟到哦~" }, "trigger": { "type": "ending", "ending": "win" }, "orderInGroup": 3, "effects": { "sound": "none", "badge": true }, "_provenance": "agent-draft" },
 
-    { "id": "ed_fuse_01", "category": "ending", "contact": "system", "text": "【系统提示】17:00 已到,全表爆炸。", "trigger": { "type": "ending", "ending": "fuse" }, "orderInGroup": 1, "effects": { "sound": "urgent", "badge": true }, "_provenance": "agent-draft" },
+    { "id": "ed_fuse_01", "category": "ending", "contact": "system", "text": "【系统提示】{deadline} 已到,全表爆炸。", "trigger": { "type": "ending", "ending": "fuse" }, "orderInGroup": 1, "effects": { "sound": "urgent", "badge": true }, "_provenance": "agent-draft" },
     { "id": "ed_fuse_02", "category": "ending", "contact": "boss", "text": "我不管什么引信!我的尾款呢?!", "trigger": { "type": "ending", "ending": "fuse" }, "orderInGroup": 2, "effects": { "sound": "urgent", "badge": true }, "_provenance": "agent-draft" },
     { "id": "ed_fuse_03", "category": "ending", "contact": "hr", "text": "别慌~离职流程里有赔偿条款,背锅也有排班表~", "trigger": { "type": "ending", "ending": "fuse" }, "orderInGroup": 3, "effects": { "sound": "none", "badge": true }, "_provenance": "agent-draft" },
     { "id": "ed_fuse_04", "category": "ending", "contact": "wang", "text": "说了别发挥。", "trigger": { "type": "ending", "ending": "fuse" }, "orderInGroup": 4, "effects": { "sound": "none", "badge": false }, "_provenance": "agent-draft" },
@@ -45,7 +45,7 @@
     { "id": "ed_row3_02", "category": "ending", "contact": "wang", "text": "Excel 没有 2 月 29 日。这事没人能解释。", "trigger": { "type": "ending", "ending": "row3" }, "orderInGroup": 2, "effects": { "sound": "none", "badge": true }, "_provenance": "agent-draft" },
     { "id": "ed_row3_03", "category": "ending", "contact": "hr", "text": "已为您预约 IT 考古培训。讲师:空缺。", "trigger": { "type": "ending", "ending": "row3" }, "orderInGroup": 3, "effects": { "sound": "none", "badge": true }, "_provenance": "agent-draft" },
 
-    { "id": "ed_row4_01", "category": "ending", "contact": "boss", "text": "差 1024?!这是钱的事吗?这是态度的事!", "trigger": { "type": "ending", "ending": "row4" }, "orderInGroup": 1, "effects": { "sound": "urgent", "badge": true }, "_provenance": "agent-draft" },
+    { "id": "ed_row4_01", "category": "ending", "contact": "boss", "text": "差 {row4Target}?!这是钱的事吗?这是态度的事!", "trigger": { "type": "ending", "ending": "row4" }, "orderInGroup": 1, "effects": { "sound": "urgent", "badge": true }, "_provenance": "agent-draft" },
     { "id": "ed_row4_02", "category": "ending", "contact": "boss", "text": "说好的祖传浮点精度呢?!给我一个说法!", "trigger": { "type": "ending", "ending": "row4" }, "orderInGroup": 2, "effects": { "sound": "urgent", "badge": true }, "_provenance": "agent-draft" },
     { "id": "ed_row4_03", "category": "ending", "contact": "wang", "text": "千万别改代码。凑数。凑数就行。", "trigger": { "type": "ending", "ending": "row4" }, "orderInGroup": 3, "effects": { "sound": "none", "badge": true }, "_provenance": "agent-draft" },
     { "id": "ed_row4_04", "category": "ending", "contact": "hr", "text": "账目问题请走财务流程~心理问题请走 EAP~", "trigger": { "type": "ending", "ending": "row4" }, "orderInGroup": 4, "effects": { "sound": "none", "badge": true }, "_provenance": "agent-draft" },
@@ -54,7 +54,7 @@
     { "id": "ed_row5_02", "category": "ending", "contact": "wang", "text": "心不诚。手不快。", "trigger": { "type": "ending", "ending": "row5" }, "orderInGroup": 2, "effects": { "sound": "none", "badge": true }, "_provenance": "agent-draft" },
     { "id": "ed_row5_03", "category": "ending", "contact": "hr", "text": "机房神兽不上社保,出事概不负责哦~", "trigger": { "type": "ending", "ending": "row5" }, "orderInGroup": 3, "effects": { "sound": "none", "badge": true }, "_provenance": "agent-draft" },
 
-    { "id": "egg_taskbar_xl", "category": "tooltip", "contact": "system", "text": "核心业务_最终版_打死勿动.xlsx —— 唯一真数据源(隔壁两个「真最终版」是考古现场,别信)", "trigger": { "type": "static" }, "orderInGroup": 1, "effects": { "sound": "none", "badge": false }, "_provenance": "agent-draft" },
+    { "id": "egg_taskbar_xl", "category": "tooltip", "contact": "system", "text": "{workbook} —— 唯一真数据源(隔壁两个「真最终版」是考古现场,别信)", "trigger": { "type": "static" }, "orderInGroup": 1, "effects": { "sound": "none", "badge": false }, "_provenance": "agent-draft" },
     { "id": "egg_taskbar_chat", "category": "tooltip", "contact": "system", "text": "企业微信 —— 4 条未读,全部无法已读乱回", "trigger": { "type": "static" }, "orderInGroup": 2, "effects": { "sound": "none", "badge": false }, "_provenance": "agent-draft" },
     { "id": "egg_chat_title", "category": "tooltip", "contact": "system", "text": "企业微信(3 人会将你拉黑)", "trigger": { "type": "static" }, "orderInGroup": 3, "effects": { "sound": "none", "badge": false }, "_provenance": "agent-draft" },
     { "id": "egg_wang_blocked", "category": "tooltip", "contact": "system", "text": "消息已发出,但被对方拒收了。", "trigger": { "type": "static" }, "orderInGroup": 4, "effects": { "sound": "none", "badge": false }, "_provenance": "agent-draft" },

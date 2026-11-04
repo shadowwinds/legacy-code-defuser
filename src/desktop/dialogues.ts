@@ -1,5 +1,7 @@
 import raw from '../../docs/desktop/dialogues.json'
 import type { GameStatus, ModuleState } from '../store/engineSlice'
+import { resolveDialogueText, runSceneCopy } from '../rules/sceneCopy'
+import type { SceneId } from '../rules/situation'
 
 /**
  * 桌面化文案契约的 TS 版（docs/desktop/dialogue-contract.md）。
@@ -40,9 +42,18 @@ export interface DialogueMessage {
   orderInGroup: number
   interruptible?: boolean
   effects?: { sound?: 'ding' | 'urgent' | 'none'; badge?: boolean; pin?: boolean }
+  /** v2 场景覆盖文案（#55）；加载时已解析进 text */
+  sceneText?: Partial<Record<SceneId, string>>
 }
 
-export const MESSAGES: readonly DialogueMessage[] = (raw as { messages: DialogueMessage[] }).messages
+/**
+ * 加载时按本局时间场景解析文案（#55）：sceneText 覆盖 + {deadline} 等占位符。
+ * 消费方只读 text，无需关心场景；v2 关闭时解析结果与 v1 原文逐字一致。
+ */
+export const MESSAGES: readonly DialogueMessage[] = (raw as { messages: DialogueMessage[] }).messages.map((m) => ({
+  ...m,
+  text: resolveDialogueText(m.text, m.sceneText, runSceneCopy()),
+}))
 
 const byOrder = (a: DialogueMessage, b: DialogueMessage) => a.orderInGroup - b.orderInGroup
 

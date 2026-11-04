@@ -20,6 +20,9 @@
 | `orderInGroup` | number | ✓ | 组内顺序(分镜帧序 / 结局组内对话序),从 1 起 |
 | `interruptible` | boolean | push 类必填 | 该条是否允许在玩家操作中弹 toast 打断;`false` = 仅红点+提示音,不打断 |
 | `effects` | object | — | `{ "sound": "ding"\|"urgent"\|"none"`, `"badge": boolean`, `"pin": boolean }`,缺省全 false/none |
+| `sceneText` | object | — | v2 时间场景整句覆盖(#55):键为场景 id(`fri-close` / `wed-release` / `sat-review` / `sun-eve`),值 ≤80 字;缺省的场景用 `text` |
+
+**占位符(#55)**:`text` 与 `sceneText` 里可写 `{date}`(2026-10-24)、`{weekday}`(周五)、`{introTime}`(开场时刻,截止前 7 分钟)、`{deadline}`(截止时刻,如 17:00 / 22:00)、`{workbook}`(工作簿文件名)、`{row4Target}`(平账目标值)。加载时按本局时间场景替换(`src/rules/sceneCopy.ts`);v2 关闭时替换成 v1 原值,文案逐字不变。只写时间、日期、文件名等会随场景变的事实,整句语气不同的用 `sceneText`。
 
 `trigger` 对象:
 

@@ -3,6 +3,7 @@ import { useDesktopStore } from '../../desktop/desktopStore'
 import { CONTACT_META, getMessage } from '../../desktop/dialogues'
 import { ChatBubble } from './ChatBubble'
 import { ContactAvatar } from './ContactAvatar'
+import { runSceneCopy } from '../../rules/sceneCopy'
 import './endingChat.css'
 
 /**
@@ -24,7 +25,7 @@ export function EndingChat() {
 
   return (
     <div className="ending-chat">
-      <div className="ending-chat-titlebar">企业微信 · 下班前最后的消息</div>
+      <div className="ending-chat-titlebar">企业微信 · {runSceneCopy().chatTitle}</div>
       <div ref={msgsRef} className="ending-chat-msgs">
         {endingView.shownIds.map((id) => {
           const m = getMessage(id)

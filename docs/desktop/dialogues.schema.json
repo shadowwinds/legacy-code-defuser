@@ -73,7 +73,23 @@
         },
         "category": { "enum": ["storyboard", "push", "ending", "tooltip"] },
         "contact": { "enum": ["boss", "hr", "wang", "system", "player"] },
-        "text": { "type": "string", "maxLength": 80, "minLength": 1 },
+        "text": {
+          "type": "string",
+          "maxLength": 80,
+          "minLength": 1,
+          "description": "可含占位符 {date} {weekday} {introTime} {deadline} {workbook} {row4Target}，加载时按本局时间场景替换（v2 关闭时替换成 v1 原值）"
+        },
+        "sceneText": {
+          "type": "object",
+          "description": "v2 时间场景整句覆盖（缺省场景用 text），同样可含占位符",
+          "additionalProperties": false,
+          "properties": {
+            "fri-close": { "type": "string", "maxLength": 80, "minLength": 1 },
+            "wed-release": { "type": "string", "maxLength": 80, "minLength": 1 },
+            "sat-review": { "type": "string", "maxLength": 80, "minLength": 1 },
+            "sun-eve": { "type": "string", "maxLength": 80, "minLength": 1 }
+          }
+        },
         "trigger": { "$ref": "#/$defs/trigger" },
         "orderInGroup": { "type": "integer", "minimum": 1 },
         "interruptible": { "type": "boolean", "description": "push 类必填" },
