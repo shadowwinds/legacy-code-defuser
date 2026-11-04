@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import type { CSSProperties, KeyboardEvent as ReactKeyboardEvent } from 'react'
 import { useGameStore } from '../../store'
-import { liveSheetEnabled } from '../liveSheet/useLiveSheet'
 import {
   EDGE_A_SEC,
   EDGE_A_THRESHOLD_MS,
@@ -111,10 +110,9 @@ export function Row4GOverlay() {
     }
   }
 
-  // G 列左边界：v2 活表格计入可变的 D 列宽（宽列下差值很大）；v1 保持线上位置（按 6 个等宽列算）
-  const dColW = liveSheetEnabled() ? `${dColWidth}px` : 'var(--col-w)'
+  // G 列左边界：A–F 中 D 列宽可变（row3Slice.dColWidth，与 Grid 的 gridTemplateColumns 同源），其余 5 列为 --col-w
   const containerStyle: CSSProperties = {
-    left: `calc(var(--row-header-w) + var(--col-w) * ${G_COL - 2} + ${dColW})`,
+    left: `calc(var(--row-header-w) + var(--col-w) * ${G_COL - 2} + ${dColWidth}px)`,
     top: 'var(--row-h)',
     width: 'var(--col-w)',
     height: `calc(var(--row-h) * 8)`,
