@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useDesktopStore } from '../desktop/desktopStore'
 import { ENDING_OVERLAY_DELAY_MS } from '../desktop/tiers'
 import { useGameStore } from '../store'
+import { startNewRun } from '../lib/seed'
 import './endOverlay.css'
 
 /**
@@ -54,7 +55,7 @@ export function EndOverlay() {
                 <button type="button" className="win98-btn" onClick={() => setSaveClicked(true)}>
                   保存并继续加班
                 </button>
-                <button type="button" className="win98-btn primary" onClick={() => location.reload()}>
+                <button type="button" className="win98-btn primary" onClick={startNewRun}>
                   不保存，直接跑路!
                 </button>
               </div>
@@ -66,7 +67,7 @@ export function EndOverlay() {
                 <span>{endReason ?? '发生严重错误。'}</span>
               </div>
               <div className="win98-actions">
-                <button type="button" className="win98-btn primary" onClick={() => location.reload()}>
+                <button type="button" className="win98-btn primary" onClick={startNewRun}>
                   重新开始
                 </button>
               </div>

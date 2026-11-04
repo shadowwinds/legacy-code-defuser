@@ -498,3 +498,13 @@
   font-variant-numeric: tabular-nums;
   letter-spacing: 0.5px;
 }
+
+/* v2：【文件】页签可点（打开 Backstage） */
+.ribbon-tab.file-tab {
+  background: var(--xlsx-green);
+  color: #fff;
+  cursor: pointer;
+}
+.ribbon-tab.file-tab:hover {
+  background: #185c37;
+}

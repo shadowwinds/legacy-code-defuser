@@ -8,11 +8,19 @@ export interface SheetState {
   activeSheet: SheetId
   setSheet: (sheet: SheetId) => void
   toggleSheet: () => void
+  /** 【文件】后台视图（Backstage）是否打开；打开时游戏照跑 */
+  backstageOpen: boolean
+  setBackstage: (open: boolean) => void
 }
 
 export const createSheetSlice: StateCreator<RootState, [], [], SheetState> = (set) => ({
   activeSheet: 'sheet1',
   setSheet: (sheet) => set({ activeSheet: sheet }),
   toggleSheet: () =>
-    set((s) => ({ activeSheet: s.activeSheet === 'sheet1' ? 'sheet2' : 'sheet1' })),
+    set((s) => ({
+      activeSheet: s.activeSheet === 'sheet1' ? 'sheet2' : 'sheet1',
+      backstageOpen: false,
+    })),
+  backstageOpen: false,
+  setBackstage: (open) => set({ backstageOpen: open }),
 })

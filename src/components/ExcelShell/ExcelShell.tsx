@@ -3,6 +3,7 @@ import { useGameStore } from '../../store'
 import { FormatSelect } from '../modules/FormatSelect'
 import './excelShell.css'
 import '../modules/row3.css'
+import { Backstage } from './Backstage'
 import { FormulaBar } from './FormulaBar'
 import { Grid } from './Grid'
 import { ManualSheet } from './ManualSheet'
@@ -11,7 +12,6 @@ import { SheetTabs } from './SheetTabs'
 import { StatusBar } from './StatusBar'
 import { SystemBroadcast } from './SystemBroadcast'
 import { TitleBar } from './TitleBar'
-import './excelShell.css'
 
 /**
  * 高仿 Excel 2016 的游戏外壳。
@@ -59,6 +59,7 @@ export function ExcelShell() {
       <SheetTabs />
       <StatusBar />
       <SystemBroadcast />
+      <Backstage />
     </div>
   )
 }

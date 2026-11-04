@@ -4,6 +4,8 @@
  */
 
 /** Edge A 失衡持续阈值（毫秒）：失衡 >10s 触发连坐 */
+import { runStream } from './seed'
+
 export const EDGE_A_THRESHOLD_MS = 10_000
 
 /** 边触发上下文：由调用方（#9/#10 票）按当前游戏快照构造 */
@@ -55,6 +57,9 @@ export type EdgeBPickTarget = (aliveRows: readonly number[]) => number | null
 /** Edge B 反噬回调签名（#10 接线示例：applyPenalty({ row: target, sec: EDGE_B.penaltySec, source: 'edge-b' })） */
 export type EdgeBCallback = (targetRow: number) => void
 
+/** Edge B 反噬目标的随机流（本局种子派生，同种子同操作序列可复现） */
+const edgeBRng = runStream('edge-b')
+
 /** Edge B · 重启是赌博：Row5 仪式成功 → 随机 1 个未拆模块 -5s（#10 实装触发与目标挑选） */
 export const EDGE_B: DependencyEdge & { pickTarget: EdgeBPickTarget | null } = {
   id: 'edge-b',
@@ -65,6 +70,6 @@ export const EDGE_B: DependencyEdge & { pickTarget: EdgeBPickTarget | null } = {
   condition: () => false, // 回调驱动（仪式成功瞬间），不走谓词轮询
   pickTarget: (aliveRows) => {
     if (aliveRows.length === 0) return null
-    return aliveRows[Math.floor(Math.random() * aliveRows.length)] ?? null
-  }, // #10 接入随机挑选
+    return aliveRows[edgeBRng.int(aliveRows.length)] ?? null
+  }, // #10 接入随机挑选；#42 改由本局种子决定
 }

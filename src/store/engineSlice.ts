@@ -1,6 +1,7 @@
 import type { StateCreator } from 'zustand'
 import type { RootState } from './index'
 import { createInitialModules, pickPasscodeIndex } from '../lib/randomizer'
+import { getRunConfig, runStream } from '../lib/seed'
 
 /** 全局引信总时长（秒）：16:56:00 → 17:00:00 */
 export const FUSE_INITIAL_SEC = 240
@@ -38,6 +39,8 @@ export interface EngineState {
   status: GameStatus
   /** 终局文案（爆炸/通关） */
   endReason: string | null
+  /** 本局种子（【文件 → 信息】展示；`?seed=` 可重放） */
+  seed: string
   /** 本局生效的口令附录行下标（0–4，Row3 后续票接 UI） */
   passcodeIndex: number
   /** 行号 → 冻结截止 epoch ms；冻结期间该行倒计时暂停（fill: 冻结窗格/填错锁） */
@@ -73,10 +76,11 @@ const MAX_TICK_DELTA_SEC = 1
 
 export const createEngineSlice: StateCreator<RootState, [], [], EngineState> = (set, get) => ({
   fuseRemaining: FUSE_INITIAL_SEC,
-  modules: createInitialModules(MODULE_BASE_SEC),
+  modules: createInitialModules(MODULE_BASE_SEC, runStream('module-jitter')),
   status: 'playing',
   endReason: null,
-  passcodeIndex: pickPasscodeIndex(),
+  seed: getRunConfig().seed,
+  passcodeIndex: pickPasscodeIndex(runStream('passcode')),
   frozenRowsUntil: {},
   gameStartedAt: null,
 

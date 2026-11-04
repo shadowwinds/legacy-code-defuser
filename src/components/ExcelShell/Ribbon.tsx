@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import { getRunConfig } from '../../lib/seed'
 import { useGameStore } from '../../store'
 import '../modules/skills.css'
 
@@ -28,6 +29,10 @@ export function Ribbon() {
   const fuseTick = useGameStore((s) => Math.round(s.fuseRemaining * 10))
   void fuseTick
 
+  const setBackstage = useGameStore((s) => s.setBackstage)
+  // v2：【文件】页签可点开后台视图（种子 / 外壳变量）；v2 关闭时保持 v1 的纯装饰
+  const fileClickable = getRunConfig().v2
+
   const playing = status === 'playing'
   const fbCdSec = playing ? cdRemainingSec(formatBrush.cdUntil) : 0
   const fpCdSec = playing ? cdRemainingSec(freezePane.cdUntil) : 0
@@ -40,7 +45,11 @@ export function Ribbon() {
     <div className="ribbon">
       <div className="ribbon-tabs">
         {TABS.map((tab) => (
-          <div key={tab} className={`ribbon-tab${tab === '开始' ? ' active' : ''}`}>
+          <div
+            key={tab}
+            className={`ribbon-tab${tab === '开始' ? ' active' : ''}${tab === '文件' && fileClickable ? ' file-tab' : ''}`}
+            onClick={tab === '文件' && fileClickable ? () => setBackstage(true) : undefined}
+          >
             {tab}
           </div>
         ))}

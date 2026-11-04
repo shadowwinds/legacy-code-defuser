@@ -1,0 +1,131 @@
+/* 【文件 → 信息】后台视图（Excel 2016 Backstage 拟真）：盖住标题栏以下、任务栏以上
+ * （fixed：Excel 窗口容器按 #29 约定不定位，任务栏高 48px） */
+.backstage {
+  position: fixed;
+  inset: 30px 0 48px 0;
+  z-index: 450;
+  display: flex;
+  background: #fff;
+  font-size: 13px;
+  color: #262626;
+  animation: backstage-in 160ms ease-out;
+}
+@keyframes backstage-in {
+  from {
+    transform: translateX(-24px);
+    opacity: 0;
+  }
+}
+
+.backstage-nav {
+  flex: none;
+  width: 160px;
+  padding-top: 8px;
+  background: var(--xlsx-green);
+  color: #fff;
+}
+.backstage-back {
+  display: block;
+  width: 40px;
+  height: 40px;
+  margin: 0 0 12px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: 50%;
+  background: none;
+  color: #fff;
+  font-size: 18px;
+  cursor: pointer;
+}
+.backstage-back:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+.backstage-item {
+  padding: 9px 24px;
+  font-size: 14px;
+  opacity: 0.9;
+  cursor: default;
+}
+.backstage-item.active {
+  background: rgba(0, 0, 0, 0.18);
+  opacity: 1;
+  font-weight: 600;
+}
+
+.backstage-main {
+  flex: 1;
+  padding: 24px 40px;
+  overflow: auto;
+}
+.backstage-main h1 {
+  margin: 0 0 6px;
+  font-size: 30px;
+  font-weight: 300;
+}
+.backstage-file {
+  margin-bottom: 24px;
+  color: #666;
+}
+.backstage-cols {
+  display: flex;
+  gap: 40px;
+  align-items: flex-start;
+}
+.backstage-card {
+  flex: 1;
+  display: flex;
+  gap: 16px;
+  max-width: 480px;
+  padding: 16px 0;
+  border-top: 1px solid #e1dfdd;
+  border-bottom: 1px solid #e1dfdd;
+}
+.backstage-card-icon {
+  font-size: 28px;
+}
+.backstage-card h2,
+.backstage-props h2 {
+  margin: 0 0 6px;
+  font-size: 15px;
+  font-weight: 600;
+}
+.backstage-card p {
+  margin: 0;
+  color: #555;
+}
+
+.backstage-props {
+  width: 280px;
+}
+.backstage-props dl {
+  display: grid;
+  grid-template-columns: 90px 1fr;
+  gap: 6px 12px;
+  margin: 8px 0;
+}
+.backstage-props dt {
+  color: #666;
+}
+.backstage-props dd {
+  margin: 0;
+}
+.backstage-seed {
+  font-family: Consolas, 'Courier New', monospace;
+  font-weight: 700;
+  letter-spacing: 1px;
+  user-select: text;
+}
+.backstage-hint {
+  margin: 0 0 10px;
+  color: #888;
+  font-size: 12px;
+}
+.backstage-copy {
+  padding: 5px 12px;
+  border: 1px solid #c8c6c4;
+  background: #fff;
+  font: inherit;
+  cursor: pointer;
+}
+.backstage-copy:hover {
+  background: #f3f2f1;
+}
