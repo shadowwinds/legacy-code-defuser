@@ -1,6 +1,6 @@
 # AGENTS.md
 
-《屎山拆弹专家》(Legacy Code Defuser) — 纯前端 Web 游戏：祖传代码维护 × 职场摸鱼伪装的策略解谜游戏。
+《屎山拆弹专家》(Legacy Code Defuser) — 纯前端 Web 游戏：伪装成 Excel 表格的 KTaNE 式祖传代码拆弹解谜游戏（查手册 → 操作，职场黑色幽默）。
 
 ## Agent skills
 
