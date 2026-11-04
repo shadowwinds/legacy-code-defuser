@@ -194,7 +194,7 @@ export function Grid() {
               // E 列：模块行接引擎倒计时数据条；非模块行不渲染
               const mod = r.kind === 'module' ? modules[r.row - 1] : undefined
               cells.push(
-                <div key={c} className={cls}>
+                <div key={c} className={cls} data-row={r.row}>
                   {mod ? <DataBar remainingSec={mod.remaining} initialSec={mod.initial} /> : null}
                 </div>,
               )
@@ -204,7 +204,7 @@ export function Grid() {
             if (r.row === 3 && col === 4) {
               // D3 乱码考古：#### → 序列值 → 短日期（row3Slice 三阶段）
               cells.push(
-                <div key={c} className={cls} onClick={() => selectCell(r.row, c)}>
+                <div key={c} className={cls} data-row={r.row} onClick={() => selectCell(r.row, c)}>
                   <span className="d3-value">{d3Text}</span>
                 </div>,
               )
@@ -214,7 +214,7 @@ export function Grid() {
             if (r.row === 3 && col === 6 && passcodeVisible) {
               // F3 口令输入框：阶段③填口令
               cells.push(
-                <div key={c} className={cls} onClick={() => selectCell(r.row, c)}>
+                <div key={c} className={cls} data-row={r.row} onClick={() => selectCell(r.row, c)}>
                   <Row3PasscodeCell />
                 </div>,
               )
@@ -226,6 +226,7 @@ export function Grid() {
                 <div
                   key={c}
                   className={cls}
+                  data-row={r.row}
                   style={{ gridColumn: `span ${r.span}` }}
                   onClick={
                     row2Blocked ? undefined : isRow8 ? handleRow8Click : () => selectCell(r.row, 1)
@@ -243,6 +244,7 @@ export function Grid() {
               <div
                 key={c}
                 className={cls}
+                data-row={r.row}
                 onClick={
                   row2Blocked
                     ? undefined
@@ -263,6 +265,7 @@ export function Grid() {
             <Fragment key={r.row}>
               <div
                 className={`rh${r.kind === 'dim' ? ' dim' : ''}${isSelRow ? ' active' : ''}${locked ? ' locked' : ''}${row2Dead ? ' row2-deadlocked' : ''}${r.row === 5 && row5Stuck ? ' row5-stuck' : ''}${greenWashed ? ' green-wash' : ''}${frozen ? ' frozen' : ''}`}
+                data-row={r.row}
                 onClick={() => selectRow(r.row)}
               >
                 {frozen ? `${r.row} ❄` : r.row}
