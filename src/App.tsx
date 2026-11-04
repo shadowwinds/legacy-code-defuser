@@ -10,8 +10,6 @@ import { ToastLayer } from './components/desktop/ToastLayer'
 import { initDesktopAnchors } from './desktop/anchors'
 import { initEndingSequence } from './desktop/endingSequence'
 import { useGameEngine } from './lib/useGameEngine'
-// ⚠️ PROTOTYPE（#43）：?proto=live 才挂载，选定后移除
-import { LiveSheetPrototype, isLiveSheetPrototype } from './prototype/liveSheet/LiveSheetPrototype'
 
 export default function App() {
   // 引擎 tick 全局唯一入口：App 挂载时启动一次（开局前 tick 空转，见 startGame）
@@ -33,7 +31,6 @@ export default function App() {
         <ToastLayer />
         <EndingChat />
         <EndOverlay />
-        {isLiveSheetPrototype() && <LiveSheetPrototype />}
       </IntroGate>
       {/* 窄屏降级（T8）：放 IntroGate 外才能盖住开场动画与白闪，z 3500 见 narrowScreen.css */}
       <NarrowScreenNotice />

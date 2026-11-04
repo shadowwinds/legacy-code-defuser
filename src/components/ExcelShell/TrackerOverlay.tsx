@@ -1,19 +1,10 @@
 import { useGameStore } from '../../store'
+import { liveSheetEnabled, useSheetGeometry } from '../liveSheet/useLiveSheet'
 
-/**
- * 网格几何常量（与 src/styles/global.css 的 --row-header-w/--col-w/--row-h 保持一致，
- * SVG 路径数据无法使用 CSS calc，改在此处单一来源镜像）。
+/*
+ * 网格几何取自 useSheetGeometry（SVG 路径数据无法使用 CSS calc，与 CSS 变量同一来源）：
+ * v1 = global.css 的 42/96/24；v2 活表格 = 随窗口宽度铺满的宽列。
  */
-const ROW_HEADER_W = 42
-const COL_W = 96
-const ROW_H = 24
-
-/** E 列（第 5 列）中心 x */
-const E_CENTER_X = ROW_HEADER_W + COL_W * 4 + COL_W / 2
-/** E 列单元格右边界 x */
-const E_RIGHT_X = ROW_HEADER_W + COL_W * 5
-/** 行 N 中心 y（.gh 表头行占第 0 行，数据行 N 从 y = ROW_H * N 开始） */
-const rowCenterY = (row: number) => ROW_H * row + ROW_H / 2
 
 /**
  * 耦合追踪箭头覆盖层（GDD 02 §2.5 / 04 §4.1）：Excel「追踪从属单元格」拟物。
@@ -24,12 +15,20 @@ export function TrackerOverlay() {
   const selectedRow = useGameStore((s) => s.selectedRow)
   const selectedCol = useGameStore((s) => s.selectedCol)
   const imbalanced = useGameStore((s) => s.row4Imbalanced)
+  const dColWidth = useGameStore((s) => s.dColWidth)
+  const { rowHeaderW, colW, rowH } = useSheetGeometry()
 
   if (!imbalanced || selectedRow !== 4 || selectedCol !== null) return null
 
-  const sx = E_CENTER_X
+  // E 列（第 5 列）左边界：v2 计入可变的 D 列宽；v1 保持线上位置（按 4 个等宽列算）
+  const dW = liveSheetEnabled() ? dColWidth : colW
+  const eLeft = rowHeaderW + colW * 3 + dW
+  /** 行 N 中心 y（.gh 表头行占第 0 行，数据行 N 从 y = rowH * N 开始） */
+  const rowCenterY = (row: number) => rowH * row + rowH / 2
+
+  const sx = eLeft + colW / 2
   const sy = rowCenterY(4)
-  const enterX = E_RIGHT_X - 8
+  const enterX = eLeft + colW - 8
   // Excel 式折线：出源单元格 → 竖直上行（两条错开竖线避免重叠）→ 折回进入目标行 E 列
   const arrowPath = (targetRow: number, gutterX: number) => {
     const ty = rowCenterY(targetRow)
